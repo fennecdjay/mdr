@@ -16,6 +16,12 @@ CFLAGS += -flto
 LDFLAGS += -flto
 endif
 
+ifeq (${ASAN}, 1)
+DEBUG = 1
+CFLAGS  += -fsanitize=address -fno-omit-frame-pointer
+LDFLAGS += -fsanitize=address -fno-omit-frame-pointer
+endif
+
 ifeq (${DEBUG}, 1)
 CFLAGS += -g -Og
 else
