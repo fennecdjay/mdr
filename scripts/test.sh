@@ -67,6 +67,9 @@ then ok "$index" "usage"
 else not_ok "$index" "usage"
 fi
 files="tests/non_existant_file.mdr $(find tests/*.mdr)"
+#debug
+echo "$files"
+#end of debug
 for file in $files
 do
   index=$((index + 1))
