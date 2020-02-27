@@ -25,7 +25,7 @@ function ok() {
 }
 
 function not_ok() {
-  printf "${RED}NOT OK${CLEAR} ${BOLD}% 2i${CLEAR} %s\n" "$1" "$2"
+  printf "${RED}NOT OK${CLEAR} ${BOLD}% 3i${CLEAR} %s\n" "$1" "$2"
   return 1
 }
 
@@ -46,12 +46,12 @@ function file_test() {
   if [ -f "$md" ]
   then if [ ! -z $(diff $md $md_result) ]
   then
-    not_ok "$number $file"
+    not_ok "$number" "$file"
     return 1
   fi
   elif [ -f "$err" ] && [[ $(cat "$err_result") != *"$(cat $err)"* ]]
   then
-    not_ok "$number $file"
+    not_ok "$number" "$file"
     return 1
   fi
 
