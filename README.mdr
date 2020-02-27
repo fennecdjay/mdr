@@ -1,7 +1,6 @@
 # MDR, a markdown runner
 
-[![Build Status](https://travis-ci.org/fennecdjay/mdr.svg?branch=master)](https://travis-ci.org/fennecdjay/mdr)
-
+<!--[![Build Status](https://travis-ci.org/fennecdjay/mdr.svg?branch=master)](https://travis-ci.org/fennecdjay/mdr)-->
 mdr is a **small** (less than **500 C SLOC** :champagne:) *program* and *markup*
 designed to facilitate documentation and testing.  
 
