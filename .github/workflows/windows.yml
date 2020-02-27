@@ -1,0 +1,17 @@
+name: Linux
+
+on: [push]
+
+jobs:
+  build:
+    name: ${{ matrix.cc }}
+    runs-on: windows-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+        
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: make
+      run: make
+    - name: make test
+      run: make test
