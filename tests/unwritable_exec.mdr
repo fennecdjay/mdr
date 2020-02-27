@@ -1,0 +1,8 @@
+@``` test
+@exec touch result/unwritable.file
+@exec chmod -w result/unwritable.file
+@```
+
+@``` result/unwritable.file
+test
+@```

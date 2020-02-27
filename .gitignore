@@ -1,0 +1,7 @@
+config.mk
+result
+mdr
+*.md
+*.o
+*.gcda
+*.gcno

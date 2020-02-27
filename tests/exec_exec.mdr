@@ -1,0 +1,5 @@
+# Testing exec cmd in exec
+
+@``` result/test.cmd
+@exec echo "Hello, World!"
+@```

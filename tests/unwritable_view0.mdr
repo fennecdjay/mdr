@@ -1,0 +1,4 @@
+# Create an unwritable file
+
+@exec touch tests/unwritable_view.md
+@exec chmod -w tests/unwritable_view.md

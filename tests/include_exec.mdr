@@ -1,0 +1,13 @@
+# Testing include
+
+@``` result/include.file
+We'll be including @[[ some_text ]].
+@```
+
+@``` some_text these five words are ignored
+some text.
+@```
+
+@``` some_text
+And another line
+@```

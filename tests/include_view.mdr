@@ -1,0 +1,7 @@
+# Testing include
+
+We'll be including @[[ some_text ]].
+
+@``` some_text
+some text
+@```

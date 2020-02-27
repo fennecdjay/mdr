@@ -1,0 +1,13 @@
+# Testing include
+
+@``` include
+We'll be including @[[ some_text ]].
+@```
+
+@``` some_text these five words are ignored
+some
+@```
+
+@``` some_text
+ text
+@```

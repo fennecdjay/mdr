@@ -1,0 +1,9 @@
+# Test append to @@exec
+
+@``` result/append.test
+first line
+@```
+
+@``` result/append.test
+second line
+@```
