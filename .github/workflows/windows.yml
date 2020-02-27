@@ -1,4 +1,4 @@
-name: Linux
+name: Windows
 
 on: [push]
 
@@ -12,6 +12,6 @@ jobs:
     - name: checkout
       uses: actions/checkout@v2
     - name: make
-      run: make
+      run: CC=gcc make
     - name: make test
       run: make test
