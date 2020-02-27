@@ -66,7 +66,7 @@ if [ "$(./mdr 2>&1)" = "usage: mdr <files>" ]
 then ok "$index" "usage"
 else not_ok "$index" "usage"
 fi
-files="tests/non_existant_file.mdr $(find tests/*.mdr)"
+files="$(find tests/*.mdr)"
 #debug
 echo "$files"
 #end of debug
