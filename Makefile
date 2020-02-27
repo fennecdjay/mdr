@@ -45,14 +45,11 @@ uninstall:
 	rm ${PREFIX}/bin/mdr
 
 test: mdr
-	@./mdr || true
-	@./mdr non_existant_file
-	@[ -d result ] || mkdir result
-	@./mdr tests/*.mdr
+	@bash scripts/test.sh
 
 clean:
 	@rm -f ${obj} mdr $(src:.c=.gcda) $(src:.c=.gcno)
 	@rm -rf result
-	@rm -f tests/*.md
+	@rm -f tests/*.md tests/*.err
 
 .SUFFIXES: .c .o
