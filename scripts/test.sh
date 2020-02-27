@@ -32,7 +32,7 @@ function not_ok() {
 function file_test() {
   number=$1
   file=$2
-  filename="$(basename "$file")"
+  filename="${file:6}"
   err="tests/err/${filename: : -3}err"
   md="tests/result/${filename: : -1}"
   if [ -z "$file" ]
@@ -66,11 +66,8 @@ if [ "$(./mdr 2>&1)" = "usage: mdr <files>" ]
 then ok "$index" "usage"
 else not_ok "$index" "usage"
 fi
-files="$(find tests/*.mdr)"
-#debug
-echo "$files"
-#end of debug
-for file in $files
+
+for file in tests/non_existant_file.mdr $(find tests/*.mdr)
 do
   index=$((index + 1))
   file_test "$index" "$file"
