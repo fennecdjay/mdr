@@ -66,7 +66,7 @@ if [ "$(./mdr 2>&1)" = "usage: mdr <files>" ]
 then ok "$index" "usage"
 else not_ok "$index" "usage"
 fi
-for file in tests/non_existant_file tests/*.mdr
+for file in tests/non_existant_file.mdr $(ls tests/*.mdr | sort)
 do
   index=$((index + 1))
   file_test "$index" "$file"
