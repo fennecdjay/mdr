@@ -12,6 +12,8 @@ jobs:
     - name: checkout
       uses: actions/checkout@v2
     - name: make
-      run: CC=gcc make
+      run: make
+      env:
+        CC: gcc
     - name: make test
       run: make test
