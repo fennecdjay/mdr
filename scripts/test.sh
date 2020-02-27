@@ -66,7 +66,8 @@ if [ "$(./mdr 2>&1)" = "usage: mdr <files>" ]
 then ok "$index" "usage"
 else not_ok "$index" "usage"
 fi
-for file in tests/non_existant_file.mdr $(find tests/*.mdr)
+files="tests/non_existant_file.mdr $(find tests/*.mdr)"
+for file in $files
 do
   index=$((index + 1))
   file_test "$index" "$file"
