@@ -57,6 +57,16 @@ static inline char* empty_string(void) {
   return str;
 }
 FILE* mdr_open_write(const char *str);
+#ifdef __MINGW32__
+char *strndup(const char *s, size_t n) {
+  char* c = malloc(n+1);
+  if(c) {
+    strncpy(c, s, n);
+    c[n] = '\0';
+  }
+  return c;
+}
+#endif
 
 // mdr.c
 void mdr_init(struct Mdr*);

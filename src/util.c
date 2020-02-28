@@ -78,3 +78,14 @@ vtype snippet_get(Map map, const char *str) {
   (void)mdr_fail("can't find '%s' snippet\n", str);
   return 0;
 }
+
+#ifdef __MINGW32__
+char *strndup(const char *s, size_t n) {
+  char* c = malloc(n+1);
+  if(c) {
+    strncpy(c, s, n);
+    c[n] = '\0';
+  }
+  return c;
+}
+#endif
