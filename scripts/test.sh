@@ -32,13 +32,12 @@ not_ok() {
 file_test() {
   number=$1
   file=$2
-  echo "$file"
   filename="${file:6}"
-  err="tests/err/${filename: : -3}err"
-  md="tests/result/${filename: : -1}"
+  err="tests/err/${filename::$#-3}err"
+  md="tests/result/${filename::$#-1}"
   if [ -z "$file" ]
   then md_result=""
-  else md_result="${file: : -1}"
+  else md_result="${file::$#-1}"
   fi
   err_result="${file}.err"
 
