@@ -82,7 +82,7 @@ That's the content of the source file we generated (and compiled).
 
 Then we run it
 ``` sh
-./hello_world
+@exec ./hello_world
 ```
 
 ``` sh
