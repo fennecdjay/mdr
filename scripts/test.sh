@@ -33,11 +33,11 @@ file_test() {
   number=$1
   file=$2
   filename="${file:6}"
-  err="tests/err/${filename::$#-3}err"
-  md="tests/result/${filename::$#-1}"
+  err="tests/err/${filename:1:$#-3}err"
+  md="tests/result/${filename:1:$#-1}"
   if [ -z "$file" ]
   then md_result=""
-  else md_result="${file::$#-1}"
+  else md_result="${file:1:$#-1}"
   fi
   err_result="${file}.err"
 
