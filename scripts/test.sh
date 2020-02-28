@@ -4,7 +4,7 @@ set -Eeu
 
 readonly dir="result"
 
-if [ -t 1 ]
+if [ -t 1 ] || [ -n "$GITHUB_ACTIONS" ]
 then
   GREEN="\033[32m"
   RED="\033[31m"
@@ -32,13 +32,9 @@ not_ok() {
 file_test() {
   number=$1
   file=$2
-  filename="${file:6}" # was basename
+  filename="$(basename $file)"
   err="tests/err/${filename:${#filename}-3}err"
   md="tests/result/${filename:${#filename}-1}"
-  if [ -z "$file" ]
-  then md_result=""
-  else md_result="${file:${#filename}-1}"
-  fi
   err_result="${file}.err"
 
   ./mdr "$2" 2> "$err_result"
