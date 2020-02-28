@@ -15,5 +15,5 @@ jobs:
       run: make
       env:
         CC: gcc
-    - name: make test
-      run: make test
+    - name: test
+      run: bash scripts/test.sh
