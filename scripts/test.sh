@@ -19,19 +19,20 @@ fi
 
 [ -d "$dir" ] || mkdir "$dir"
 
-function ok() {
+ok() {
   printf "${GREEN}OK${CLEAR} ${BOLD}% 3i${CLEAR} %s\n" "$1" "$2"
   return 0
 }
 
-function not_ok() {
+not_ok() {
   printf "${RED}NOT OK${CLEAR} ${BOLD}% 3i${CLEAR} %s\n" "$1" "$2"
   return 1
 }
 
-function file_test() {
+file_test() {
   number=$1
   file=$2
+  echo "$file"
   filename="${file:6}"
   err="tests/err/${filename: : -3}err"
   md="tests/result/${filename: : -1}"
@@ -44,12 +45,12 @@ function file_test() {
   ./mdr "$2" 2> "$err_result"
 
   if [ -f "$md" ]
-  then if [ ! -z $(diff $md $md_result) ]
+  then if [ -n "$(diff "$md" "$md_result")" ]
   then
     not_ok "$number" "$file"
     return 1
   fi
-  elif [ -f "$err" ] && [[ $(cat "$err_result") != *"$(cat $err)"* ]]
+  elif [ -f "$err" ] && [[ $(cat "$err_result") != *"$(cat "$err")"* ]]
   then
     not_ok "$number" "$file"
     return 1
@@ -59,7 +60,7 @@ function file_test() {
   return 0
 }
 
-TOTAL=$((2 + $(ls tests/*.mdr | wc -l)))
+TOTAL=$((2 + $(find tests/*.mdr | wc -l)))
 index=1
 echo "$index..$TOTAL"
 if [ "$(./mdr 2>&1)" = "usage: mdr <files>" ]
