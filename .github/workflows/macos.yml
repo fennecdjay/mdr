@@ -17,4 +17,4 @@ jobs:
     - name: make
       run: ASAN=1 make
     - name: make test
-      run: make test
+      run: bash scripts/test.sh
