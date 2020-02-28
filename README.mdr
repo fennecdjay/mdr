@@ -1,6 +1,9 @@
 # MDR, a markdown runner
 
-<!--[![Build Status](https://travis-ci.org/fennecdjay/mdr.svg?branch=master)](https://travis-ci.org/fennecdjay/mdr)-->
+![Linux](https://github.com/fennecdjay/mdr/workflows/Linux/badge.svg)
+![MacOs](https://github.com/fennecdjay/mdr/workflows/MacOs/badge.svg)
+![Windows](https://github.com/fennecdjay/mdr/workflows/Windows/badge.svg)
+
 mdr is a **small** (less than **500 C SLOC** :champagne:) *program* and *markup*
 designed to facilitate documentation and testing.  
 
@@ -99,7 +102,7 @@ and the result is
 
 ## Building
 
-As a C programm, it seemed natural to use [make](https://www.gnu.org/software/make)
+As a C program, it seemed natural to use [make](https://www.gnu.org/software/make)
 as a build system.
 
 ``` sh
@@ -108,9 +111,16 @@ make
 
 ## Testing
 
+Also using make:
 ``` sh
 make test
 ```
+
+You can also try
+``` sh
+bash scripts/test.sh
+```
+
 
 ## Installing
 
@@ -120,6 +130,9 @@ As easy as before, just type.
 make install
 ```
 or just copy `mdr` somewhere in your path.
+
+
+-------
 
 generated from [this file](https://github.com/fennecdjay/mdr/blob/master/README.mdr)
 
