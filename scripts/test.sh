@@ -68,3 +68,11 @@ do
   index=$((index + 1))
   file_test "$index" "$file"
 done
+
+
+if [ $(which prlimit) ]
+then
+  prlimit -n4 ./mdr tests/exec_snip.mdr &>/dev/null
+  prlimit -n4 ./mdr tests/exec_exec.mdr &>/dev/null
+  prlimit -n4 ./mdr tests/exec_view.mdr &>/dev/null
+fi
