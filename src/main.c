@@ -4,6 +4,16 @@
 #include "container.h"
 #include "mdr.h"
 
+void run(struct Mdr *mdr, char* buf) {
+  mdr_init(mdr);
+  struct Ast *ast = mdr_parse(mdr, buf);
+  if(ast) {
+    mdr_run(mdr, ast);
+    free_ast(ast);
+  }
+  mdr_release(mdr);
+}
+
 #ifndef __AFL_HAVE_MANUAL_CONTROL
 
 static int usage(void) {
@@ -18,40 +28,29 @@ int main(int argc, char **argv) {
   ++argv;
   for(int i = 1; i < argc; ++i) {
     struct Mdr mdr = { .name=argv[i] };
-    mdr_init(&mdr);
     char * str= filename2str(argv[i]);
     if(str) {
-      struct Ast *ast = mdr_parse(&mdr, str);
+      run(&mdr, str);
       free(str);
-      if(ast) {
-        mdr_run(&mdr, ast);
-        free_ast(ast);
-      }
     }
-    mdr_release(&mdr);
   }
   return EXIT_SUCCESS;
 }
 
 #else
 
-#include <string.h>
 #define BUFSIZE 1024
+
 int main(int argc, char **argv) {
   char buf[BUFSIZE];
   __AFL_INIT();
-  while(__AFL_LOOP(10)) {
+  while(__AFL_LOOP(1000)) {
     memset(buf, 0, BUFSIZE);
     read(0, buf, BUFSIZE);
     struct Mdr mdr = { .name="afl"};
-    mdr_init(&mdr);
-    struct Ast *ast = mdr_parse(&mdr, buf);
-    if(ast) {
-      mdr_run(&mdr, ast);
-      free_ast(ast);
-    }
-    mdr_release(&mdr);
+    run(&mdr, buf);
   }
   return EXIT_SUCCESS;
 }
+
 #endif
