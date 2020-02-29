@@ -7,7 +7,6 @@
 #include "lexer.h"
 
 static inline unsigned int lex_end(struct Lexer *lex) {
-//  return !lex->str || *lex->str == '\0';
   return *lex->str == '\0';
 }
 
@@ -71,6 +70,8 @@ enum mdr_status _cmd(struct Lexer *lex) {
   eat_space(lex);
   char *const buf = lex->str;
   lex_eol(lex);
+  if(lex->idx == 1)
+    return mdr_fail("missing exec command\n");
   lex->tok = strndup(buf, lex->idx - 1);
   return mdr_cmd;
 }
@@ -94,7 +95,6 @@ enum mdr_status tokenize(struct Lexer *lex) {
   char *const buf = lex->str;
   lex->idx = 0;
   char c;
-//  while(!lex_end(lex) && (c = *lex->str)) {
   while((c = *lex->str)) {
     if(c == '@') {
       if(lex->idx)
