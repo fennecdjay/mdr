@@ -30,34 +30,37 @@ static int usage(void) {
   return EXIT_FAILURE;
 }
 
-static void fill_main(Map map) {
-  char *str = getenv("MDR_MAIN");
-  if(str) {
-    struct Mdr mdr = { .know= { .main = map } };
-    mdr.know.curr.ptr = map->ptr;
-    struct Vector_ v;
-    vector_init(&v);
-    map_init(&mdr.snip);
-    map_init(&mdr.file);
-    while(str) {
-      char *old = str;
-      if((str = strchr(++str, ':'))) {
-        str[0] = '\0';
-        ++str;
-      }
-      struct Ast *ast = prepare(&mdr, old);
-      if(ast)
-        vector_add(&v, (vtype)ast);
+static void _fill_main(Map map, char *str) {
+  struct Mdr mdr = { .know= { .main = map } };
+  mdr.know.curr.ptr = map->ptr;
+  struct Vector_ v;
+  vector_init(&v);
+  map_init(&mdr.snip);
+  map_init(&mdr.file);
+  while(str) {
+    char *old = str;
+    if((str = strchr(++str, ':'))) {
+      str[0] = '\0';
+      ++str;
     }
-    snip(&mdr);
-    for(vtype i = 0; i < map_size(map); ++i)
-       VKEY(map, i) = (vtype)strdup((char*)VKEY(map, i));
-    map_release_vector(&mdr.file);
-    map_release_vector(&mdr.snip);
-    for(vtype i = 0; i < vector_size(&v); ++i)
-      free_ast((struct Ast*)vector_at(&v, i));
-    vector_release(&v);
+    struct Ast *ast = prepare(&mdr, old);
+    if(ast)
+      vector_add(&v, (vtype)ast);
   }
+  snip(&mdr);
+  for(vtype i = 0; i < map_size(map); ++i)
+     VKEY(map, i) = (vtype)strdup((char*)VKEY(map, i));
+  map_release_vector(&mdr.file);
+  map_release_vector(&mdr.snip);
+  for(vtype i = 0; i < vector_size(&v); ++i)
+    free_ast((struct Ast*)vector_at(&v, i));
+  vector_release(&v);
+}
+
+static inline void fill_main(Map map) {
+  char *str = getenv("MDR_MAIN");
+  if(str)
+    _fill_main(map, str);
 }
 
 int main(int argc, char **argv) {

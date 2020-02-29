@@ -45,11 +45,15 @@ uninstall:
 	rm ${PREFIX}/bin/mdr
 
 test: mdr
+	@MDR_MAIN="README.mdr:non_:tests/invalid_include.mdr" bash scripts/test.sh
+	@make mostly-clean
 	@bash scripts/test.sh
 
-clean:
-	@rm -f ${obj} mdr $(src:.c=.gcda) $(src:.c=.gcno)
+mostly-clean:
 	@rm -rf result
 	@rm -f tests/*.md tests/*.err
+
+clean: mostly-clean
+	@rm -f ${obj} mdr $(src:.c=.gcda) $(src:.c=.gcno)
 
 .SUFFIXES: .c .o
