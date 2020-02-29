@@ -5,7 +5,7 @@
 #include "mdr.h"
 
 struct File {
-  Map done;
+  struct Know know;
   FILE *curr;
 };
 
@@ -15,7 +15,7 @@ static enum mdr_status file_str(struct File *file, struct Ast *ast) {
 }
 
 static enum mdr_status file_inc(struct File *file, struct Ast *ast) {
-  char *str = (char*)snippet_get(file->done, ast->str);
+  char *str = (char*)snippet_get(&file->know, ast->str);// know_done
   if(!str)
     return mdr_err;
   fprintf(file->curr, "%s", str);
@@ -47,7 +47,7 @@ static enum mdr_status actual_file_ast(struct File *file, struct Ast *ast) {
 enum mdr_status file(struct Mdr *mdr) {
   enum mdr_status ret = mdr_ok;
   for(vtype i = 0; i < map_size(&mdr->file); ++i) {
-    struct File file = { .done=&mdr->done };
+    struct File file = { .know=mdr->know };
     if(!(file.curr = mdr_open_write((char*)VKEY(&mdr->file, i))))
       return mdr_err;
     const Vector v = (Vector)map_at(&mdr->file, i);

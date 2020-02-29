@@ -6,7 +6,7 @@
 
 struct Snip {
   Map known;
-  Map done;
+  struct Know know;
   Vector vec;
   char *str;
 };
@@ -36,7 +36,7 @@ static enum mdr_status snip_str(struct Snip *snip, struct Ast *ast) {
 }
 
 static int snip_done(struct Snip * snip, struct Ast *ast) {
-  char *str = (char*)map_get(snip->done, ast->str);
+  char *str = (char*)map_get(&snip->know.curr, ast->str);
   if(!str)
     return 0;
   snip->str = append_strings(snip->str, str);
@@ -50,8 +50,8 @@ static enum mdr_status snip_inc(struct Snip * snip, struct Ast *ast) {
   if(snip_done(snip, ast))
     return mdr_ok;
   char *base = snip->str;
-  const Vector v = (Vector)snippet_get(snip->known, ast->str);
-  if(!v)
+  const Vector v = (Vector)map_get(snip->known, ast->str);// know->done
+  if(!v)// err_msg
     return mdr_err;
   const char* str = expand(snip, ast->str, v);
   if(str) {
@@ -93,7 +93,7 @@ static enum mdr_status actual_snip_ast(struct Snip * snip, struct Ast *ast) {
 }
 
 static char* snip_get(struct Snip* base, struct Ast *ast) {
-  struct Snip snip = { .known=base->known, .done=base->done, .vec=base->vec };
+  struct Snip snip = { .known=base->known, .know=base->know, .vec=base->vec };
   snip.str = empty_string();
   if(actual_snip_ast(&snip, ast) != mdr_err)
     return snip.str;
@@ -114,19 +114,19 @@ static char* expand(struct Snip* base, const char *name, const Vector v) {
     free(curr);
   }
   trim(str);
-  map_set(base->done, (vtype)name, (vtype)str);
+  map_set(&base->know.curr, (vtype)name, (vtype)str);
   return str;
 }
 
 enum mdr_status snip(struct Mdr *mdr) {
   for(vtype i = 0; i < map_size(&mdr->snip); ++i) {
     const char*name = (char*)VKEY(&mdr->snip, i);
-    if(map_get(&mdr->done, name))
+    if(map_get(&mdr->know.curr, name))
       continue;
     const Vector v = (Vector)VVAL(&mdr->snip, i);
     struct Vector_ vec;
     vector_init(&vec);
-    struct Snip snip = { .known=&mdr->snip, .done=&mdr->done, .vec=&vec };
+    struct Snip snip = { .known=&mdr->snip, .know=mdr->know, .vec=&vec };
     const char *ret = expand(&snip, name, v);
     vector_release(&vec);
     if(!ret)

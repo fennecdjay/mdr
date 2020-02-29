@@ -25,10 +25,16 @@ struct Ast {
 
 void free_ast(struct Ast*);
 
+
+struct Know {
+  struct Map_ curr;
+  Map         main;
+};
+
 struct Mdr {
   struct Map_ snip;
   struct Map_ file;
-  struct Map_ done;
+  struct Know know;
   const char *name;
 };
 
@@ -43,7 +49,7 @@ struct Ast* mdr_parse(struct Mdr *, char *const);
 char* filename2str(const char*);
 char* cmd(const char *str);
 int   cmd_file(FILE *file, const char *str);
-vtype snippet_get(Map, const char*);
+vtype snippet_get(struct Know*, const char*);
 static inline void trimsz(char *str, size_t sz) {
   if(sz)
     str[sz - 1] = '\0';
@@ -64,5 +70,5 @@ char *strndup(const char *s, size_t n);
 // mdr.c
 void mdr_init(struct Mdr*);
 void mdr_run(struct Mdr*, struct Ast*);
-char* done(Map map, const char *name);
+char* done(struct Know *know, const char *name);
 void mdr_release(struct Mdr*);
