@@ -7,7 +7,8 @@
 #include "lexer.h"
 
 static inline unsigned int lex_end(struct Lexer *lex) {
-  return !lex->str || *lex->str == '\0';
+//  return !lex->str || *lex->str == '\0';
+  return *lex->str == '\0';
 }
 
 void lex_adv(struct Lexer *lex) {
@@ -93,7 +94,8 @@ enum mdr_status tokenize(struct Lexer *lex) {
   char *const buf = lex->str;
   lex->idx = 0;
   char c;
-  while(!lex_end(lex) && (c = *lex->str)) {
+//  while(!lex_end(lex) && (c = *lex->str)) {
+  while((c = *lex->str)) {
     if(c == '@') {
       if(lex->idx)
         break;

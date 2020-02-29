@@ -17,7 +17,7 @@ static char* expand(struct Snip* base, const char *name, const Vector v);
 static char * append_strings(char *old, const char *new) {
   size_t len = strlen(old) + strlen(new) + 1;
   char *out = malloc(len);
-  sprintf(out, "%s%s", old ?: "", new);
+  sprintf(out, "%s%s", old, new);
   free(old);
   return out;
 }
@@ -67,6 +67,8 @@ static enum mdr_status snip_cmd(struct Snip * snip, struct Ast *ast) {
 return mdr_ok;
 #endif
   char *str = cmd(ast->str);
+  if(!str)
+    return mdr_err;
   char *base = snip->str;
   snip->str = append_strings(base, str);
   free(str);

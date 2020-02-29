@@ -29,10 +29,11 @@ char* filename2str(const char* name) {
 }
 
 char* cmd(const char *str) {
-  char cmd[strlen(str) + 16];
-  sprintf(cmd, "%s", str);
-  FILE *f = popen(cmd, "r");
-  assert(f);
+  FILE *f = popen(str, "r");
+  if(!f) {
+    mdr_fail("can't exec '%s'\n", str);
+    return NULL;
+  }
   char *ret = file2str(f);
   pclose(f);
   return ret;
@@ -44,11 +45,11 @@ int cmd_file(FILE *file, const char *str) {
   return 1;
 #endif
   char *ret = cmd(str);
-  if(ret) {
-    fprintf(file, "%s", ret);
-    free(ret);
-  }
-  return !ret;
+  if(!ret)
+    return mdr_err;
+  fprintf(file, "%s", ret);
+  free(ret);
+  return mdr_ok;
 }
 
 enum mdr_status mdr_fail(const char* fmt, ...) {

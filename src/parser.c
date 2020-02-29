@@ -44,7 +44,7 @@ static struct Ast* parse(struct Parser*);
 
 static enum mdr_status ast_str(struct Parser *parser) {
   struct Ast *ast = new_ast(parser, mdr_str);
-  ast->str = parser->lex->tok ?: "";
+  ast->str = parser->lex->tok;
   parser->lex->tok = NULL;
   return mdr_str;
 }
@@ -110,10 +110,9 @@ static enum mdr_status _parse(struct Parser *parser) {
 }
 
 void free_ast(struct Ast *ast) {
+  free(ast->str);
   if(ast->next)
     free_ast(ast->next);
-  if(ast->str)
-    free(ast->str);
   if(ast->ast)
     free_ast(ast->ast);
   free(ast);

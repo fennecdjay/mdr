@@ -20,7 +20,7 @@ static enum mdr_status view_str(struct View *view, struct Ast *ast) {
 static enum mdr_status view_blk(struct View *view, struct Ast *ast) {
   fprintf(view->file, "``` %s\n", ast->str);
   struct View new = { .done=view->done, .file=view->file, .code=1};
-  const enum mdr_status ret = ast->ast ? actual_view_ast(&new, ast->ast) : mdr_ok;
+  const enum mdr_status ret = actual_view_ast(&new, ast->ast);
   fprintf(view->file, "```");
   return ret;
 }
@@ -59,7 +59,7 @@ static enum mdr_status actual_view_ast(struct View *view, struct Ast *ast) {
 static FILE* view_open(const char *name) {
   const size_t sz = strlen(name);
   char str[sz];
-  strncpy(str, name, sz - 1);
+  memcpy(str, name, sz - 1);
   trimsz(str, sz);
   return mdr_open_write(str);
 }
