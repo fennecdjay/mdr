@@ -73,7 +73,7 @@ FILE* mdr_open_write(const char *str) {
 }
 
 vtype snippet_get(struct Know *know, const char *str) {
-  const vtype ret = map_get(&know->curr, str) ?: map_get(know->main, str);
+  const vtype ret = map_get(&know->curr, str) ?: map_get(know->global, str);
   if(ret)
     return ret;
   (void)mdr_fail("can't find '%s' snippet\n", str);
