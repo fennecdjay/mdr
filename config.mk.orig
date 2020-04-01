@@ -1,5 +1,4 @@
 DEBUG    ?= 0
 ASAN     ?= 0
 COVERAGE ?= 0
-LTO=     ?= 0
 PREFIX   ?= /usr/local

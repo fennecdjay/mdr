@@ -11,11 +11,6 @@ WARNINGS += -Wall -Wextra
 
 CFLAGS += -Ofast ${INCLUDES} ${WARNINGS}
 
-ifeq (${LTO}, 1)
-CFLAGS += -flto
-LDFLAGS += -flto
-endif
-
 ifeq (${ASAN}, 1)
 DEBUG = 1
 CFLAGS  += -fsanitize=address -fno-omit-frame-pointer
@@ -25,7 +20,10 @@ endif
 ifeq (${DEBUG}, 1)
 CFLAGS += -g -Og
 else
-CFLAGS += -DNDEBUG
+CFLAGS += -DNDEBUG -flto
+LDFLAGS += -flto
+CFLAGS += -fomit-frame-pointer -fno-stack-protector -fno-common -fstrict-aliasing
+LDFLAGS += -fomit-frame-pointer -fno-stack-protector -fno-common
 endif
 
 ifeq (${COVERAGE}, 1)
