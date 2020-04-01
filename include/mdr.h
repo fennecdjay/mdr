@@ -28,7 +28,7 @@ void free_ast(struct Ast*);
 
 struct Know {
   struct Map_ curr;
-  Map         main;
+  Map         global;
 };
 
 struct Mdr {

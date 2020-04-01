@@ -30,8 +30,8 @@ static int usage(void) {
   return EXIT_FAILURE;
 }
 
-static void _fill_main(Map map, char *str) {
-  struct Mdr mdr = { .know= { .main = map } };
+static void _fill_global(Map map, char *str) {
+  struct Mdr mdr = { .know= { .global = map } };
   mdr.know.curr.ptr = map->ptr;
   struct Vector_ v;
   vector_init(&v);
@@ -57,31 +57,31 @@ static void _fill_main(Map map, char *str) {
   vector_release(&v);
 }
 
-static inline void fill_main(Map map) {
+static inline void fill_global(Map map) {
   char *str = getenv("MDR_MAIN");
   if(str)
-    _fill_main(map, str);
+    _fill_global(map, str);
 }
 
 int main(int argc, char **argv) {
   if(argc < 2)
     return usage();
-  struct Map_ main;
-  map_init(&main);
-  fill_main(&main);
+  struct Map_ global;
+  map_init(&global);
+  fill_global(&global);
   for(int i = 1; i < argc; ++i) {
-    struct Mdr mdr = { .name=argv[i], .know = { .main=&main } };
+    struct Mdr mdr = { .name=argv[i], .know = { .global=&global } };
     char * str= filename2str(argv[i]);
     if(str) {
       run(&mdr, str);
       free(str);
     }
   }
-  for(vtype i = 0; i < map_size(&main); ++i) {
-    free((char*)VVAL(&main, i));
-    free((char*)VKEY(&main, i));
+  for(vtype i = 0; i < map_size(&global); ++i) {
+    free((char*)VVAL(&global, i));
+    free((char*)VKEY(&global, i));
   }
-  map_release(&main);
+  map_release(&global);
   return EXIT_SUCCESS;
 }
 
@@ -92,15 +92,15 @@ int main(int argc, char **argv) {
 int main(int argc, char **argv) {
   char buf[BUFSIZE];
   __AFL_INIT();
-  struct Map_ main;
-  map_init(&main);
+  struct Map_ global;
+  map_init(&global);
   while(__AFL_LOOP(1000)) {
     memset(buf, 0, BUFSIZE);
     read(0, buf, BUFSIZE);
-    struct Mdr mdr = { .name="afl", .know={ .main=&main } };
+    struct Mdr mdr = { .name="afl", .know={ .global=&global } };
     run(&mdr, buf);
   }
-  map_release(&main);
+  map_release(&global);
   return EXIT_SUCCESS;
 }
 
