@@ -66,4 +66,5 @@ void map_release(const Map);
 static inline vtype map_size(const Map map) {
   return VLEN(map);
 }
+void map_release_vector(const Map map);
 #endif
