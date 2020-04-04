@@ -1,3 +1,6 @@
+#ifdef __WIN32
+#include "getline.h"
+#endif
 static inline ssize_t filerange_read(struct FileRange *fr) {
   return (fr->nread = getline(&fr->line, &fr->len, fr->stream)) != -1;
 }
