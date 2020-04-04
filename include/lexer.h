@@ -10,5 +10,5 @@ char* snippet_name(struct Lexer*);
 void lex_adv(struct Lexer*);
 void lex_eol(struct Lexer*);
 static inline unsigned int is_path(const char c) {
-  return c == '.' || c != '/';
+  return c == '.' || c == '/';
 }

@@ -15,12 +15,33 @@ enum mdr_status {
   mdr_err
 };
 
+struct Range {
+  long int ini;
+  long int end;
+};
+
+struct StrRange {
+  char *str;
+  struct Range range;
+  FILE *file;
+};
+
+struct FileRange {
+  struct Range range;
+  FILE *stream;
+  char *line;
+  char **_line;
+  unsigned int count;
+  size_t len;
+  ssize_t nread;
+};
+
 struct Ast {
   char *str;
   struct Ast *ast;
   struct Ast *next;
-  int ini;
-  int end;
+  struct Range main;
+  struct Range self;
   int dot;
   enum mdr_status type;
 };
@@ -66,6 +87,7 @@ static inline char* empty_string(void) {
 }
 FILE* mdr_open_write(const char *str);
 FILE* mdr_open_read(const char *str);
+unsigned int count_lines(FILE *f);
 enum mdr_status mdr_cpy(FILE *tgt, const char* name);
 #ifdef __MINGW32__
 char *strndup(const char *s, size_t n);
