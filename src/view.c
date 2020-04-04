@@ -3,6 +3,7 @@
 #include <string.h>
 #include "container.h"
 #include "mdr.h"
+#include "range_helper.h"
 
 struct View {
   struct Know know;
@@ -17,8 +18,20 @@ static enum mdr_status view_str(struct View *view, struct Ast *ast) {
   return mdr_ok;
 }
 
+static void range_print(struct Range *range, FILE *out) {
+  if(!range->ini)
+    return;
+  fprintf(out, " %li", range->ini);
+  if(range->end)
+    fprintf(out, ":%li", range->end);
+  else
+    fputc(' ', out);
+}
+
 static enum mdr_status view_blk(struct View *view, struct Ast *ast) {
-  fprintf(view->file, "``` %s\n", ast->str);
+  fprintf(view->file, "``` %s", ast->str);
+  range_print(&ast->ast->main, view->file);
+  fputc('\n', view->file);
   struct View new = { .know=view->know, .file=view->file, .code=1};
   const enum mdr_status ret = actual_view_ast(&new, ast->ast);
   fprintf(view->file, "```");
@@ -27,13 +40,31 @@ static enum mdr_status view_blk(struct View *view, struct Ast *ast) {
 
 static enum mdr_status view_inc(struct View *view, struct Ast *ast) {
   if(view->code) {
-    fprintf(view->file, "@[[ %s ]]", ast->str);
+    fprintf(view->file, "@[[ %s", ast->str);
+    range_print(&ast->self, view->file);
+    fputs(" ]]", view->file);
     return mdr_ok;
+  }
+  if(ast->dot) {
+    if(!ast->self.ini)
+      return mdr_cpy(view->file, ast->str);
+    else {
+      struct FileRange fr = { };
+      if(filerange_init(&fr, ast->str, &ast->self) == mdr_err)
+        return mdr_err;
+      while(filerange_before(&fr));
+      while(filerange_while(&fr))
+        filerange_write(&fr, view->file);
+      filerange_release(&fr);
+      fseek(view->file, -1, SEEK_END);
+      return mdr_ok;
+    }
   }
   char *str = (char*)snippet_get(&view->know, ast->str);// know_done
   if(!str)
     return mdr_err;
-  fprintf(view->file, "%s", str);
+  struct StrRange sr = { .str=str, .range=ast->self, .file=view->file };
+  range_include(&sr);
   return mdr_ok;
 }
 

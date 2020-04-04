@@ -22,7 +22,7 @@ void lex_eol(struct Lexer *lex) {
 }
 
 static inline void eat_space(struct Lexer *lex) {
-  while(isspace(*lex->str))
+  while(*lex->str != '\n' && isspace(*lex->str))
     ++lex->str;
 }
 
@@ -56,7 +56,6 @@ enum mdr_status _inc(struct Lexer *lex) {
   if(!(lex->tok = snippet_name(lex)))
     return mdr_fail("missing include name\n");
   eat_space(lex);
-  lex->str += 2;
   return mdr_inc;
 }
 
@@ -109,15 +108,14 @@ enum mdr_status tokenize(struct Lexer *lex) {
   return mdr_str;
 }
 
-static unsigned int is_path(struct Lexer *lex) {
-  const char c = *lex->str;
-  if(c != '.' && c != '/')
+static unsigned int lex_is_path(struct Lexer *lex) {
+  if(!is_path(*lex->str))
     return 0;
   return lex->dot = 1;
 }
 
 static unsigned int path(struct Lexer *lex) {
-  while(!lex_end(lex) && (isalnum(*lex->str) || *lex->str == '_' || is_path(lex)))
+  while(!lex_end(lex) && (isalnum(*lex->str) || *lex->str == '_' || lex_is_path(lex)))
     lex_adv(lex);
   return 1;
 }
@@ -127,5 +125,7 @@ char* snippet_name(struct Lexer *lex) {
   lex->idx = 0;
   char *const buf = lex->str;
   path(lex);
-  return lex->idx ? strndup(buf, lex->idx) : NULL;
+  char *ret = lex->idx ? strndup(buf, lex->idx) : NULL;
+  eat_space(lex);
+  return ret;
 }

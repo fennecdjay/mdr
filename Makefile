@@ -20,7 +20,7 @@ endif
 ifeq (${DEBUG}, 1)
 CFLAGS += -g -Og
 else
-CFLAGS += -DNDEBUG -flto
+CFLAGS += -DNDEBUG -flto -Ofast
 LDFLAGS += -flto
 CFLAGS += -fomit-frame-pointer -fno-stack-protector -fno-common -fstrict-aliasing
 LDFLAGS += -fomit-frame-pointer -fno-stack-protector -fno-common

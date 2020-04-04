@@ -19,6 +19,8 @@ struct Ast {
   char *str;
   struct Ast *ast;
   struct Ast *next;
+  int ini;
+  int end;
   int dot;
   enum mdr_status type;
 };
@@ -63,6 +65,8 @@ static inline char* empty_string(void) {
   return str;
 }
 FILE* mdr_open_write(const char *str);
+FILE* mdr_open_read(const char *str);
+enum mdr_status mdr_cpy(FILE *tgt, const char* name);
 #ifdef __MINGW32__
 char *strndup(const char *s, size_t n);
 #endif

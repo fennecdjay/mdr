@@ -18,11 +18,9 @@ static char* file2str(FILE *f) {
 }
 
 char* filename2str(const char* name) {
-  FILE * f = fopen(name, "rb");
-  if(!f) {
-    mdr_fail("can't open file '%s' for reading\n", name);
+  FILE * f = mdr_open_read(name);
+  if(!f)
     return NULL;
-  }
   char *str = file2str(f);
   fclose (f);
   return str;
@@ -62,6 +60,24 @@ enum mdr_status mdr_fail(const char* fmt, ...) {
   vfprintf(stderr, fmt, arg);
   va_end(arg);
   return mdr_err;
+}
+
+enum mdr_status mdr_cpy(FILE *tgt, const char* name) {
+  FILE *src = mdr_open_read(name);
+  char buf[4096];
+  size_t size;
+  while((size = fread(buf, 1, BUFSIZ, src)))
+    fwrite(buf, 1, size, tgt);
+  fclose(src);
+  return mdr_ok;
+}
+
+FILE* mdr_open_read(const char *str) {
+  FILE *const file = fopen(str, "rb");
+  if(file)
+    return file;
+  mdr_fail("can't open '%s' for reading\n", str);
+  return NULL;
 }
 
 FILE* mdr_open_write(const char *str) {
