@@ -4,7 +4,7 @@
 #define GETLINE_MINSIZE 16
 #define RET_ERR(a) { errno = (a); return -1; }
 
-int getline(char **lineptr, size_t *n, FILE *fp) {
+static inline int getline(char **lineptr, size_t *n, FILE *fp) {
   int ch, i = 0;
   char free_on_err = 0, *p;
   errno = 0;
