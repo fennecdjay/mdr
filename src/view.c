@@ -6,7 +6,7 @@
 #include "range_helper.h"
 
 struct View {
-  struct Know know;
+  struct Know *know;
   FILE *file;
   enum mdr_status code;
 };
@@ -60,7 +60,7 @@ static enum mdr_status view_inc(struct View *view, struct Ast *ast) {
       return mdr_ok;
     }
   }
-  char *str = (char*)snippet_get(&view->know, ast->str);// know_done
+  char *str = (char*)snippet_get(view->know, ast->str);// know_done
   if(!str)
     return mdr_err;
   struct StrRange sr = { .str=str, .range=ast->self, .file=view->file };
@@ -96,7 +96,7 @@ static FILE* view_open(const char *name) {
 }
 
 enum mdr_status view_ast(struct Mdr *mdr, struct Ast *ast) {
-  struct View view = { .know=mdr->know};
+  struct View view = { .know=&mdr->know};
   if(!(view.file = view_open(mdr->name)))
     return mdr_err;
   const enum mdr_status ret = actual_view_ast(&view, ast);

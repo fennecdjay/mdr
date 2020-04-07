@@ -6,7 +6,7 @@
 #include "range_helper.h"
 
 struct File {
-  struct Know know;
+  struct Know *know;
   FILE *curr;
   const char *name;
 };
@@ -17,7 +17,7 @@ static enum mdr_status file_str(struct File *file, struct Ast *ast) {
 }
 
 static enum mdr_status file_inc(struct File *file, struct Ast *ast) {
-  char *str = (char*)snippet_get(&file->know, ast->str);// know_done
+  char *str = (char*)snippet_get(file->know, ast->str);// know_done
   if(!str)
     return mdr_err;
   struct StrRange rs = { .str=str, .range=ast->self, .file=file->curr };
@@ -68,7 +68,7 @@ enum mdr_status file(struct Mdr *mdr) {
   enum mdr_status ret = mdr_ok;
   for(vtype i = 0; i < map_size(&mdr->file); ++i) {
     const char *name = (char*)VKEY(&mdr->file, i);
-    struct File file = { .know=mdr->know, .name=name };
+    struct File file = { .know=&mdr->know, .name=name };
     if(!(file.curr = mdr_open_write(name)))
       return mdr_err;
     const Vector v = (Vector)map_at(&mdr->file, i);
