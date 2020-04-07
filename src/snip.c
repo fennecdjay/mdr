@@ -108,7 +108,8 @@ static char* expand(struct Snip* base, const char *name, const Vector v) {
       return NULL;
     }
     str = append_strings(str, curr);
-    if(str[strlen(str)-1] == '\n')
+    const size_t sz = strlen(str);
+    if(sz && str[sz - 1] == '\n')
       trim(str);
     free(curr);
   }
