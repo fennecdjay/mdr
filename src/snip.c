@@ -40,7 +40,6 @@ static int snip_done(struct Snip * snip, struct Ast *ast) {
   if(!str)
     return 0;
   snip->str = append_strings(snip->str, str);
-  trim(snip->str);
   return 1;
 }
 
@@ -54,12 +53,10 @@ static enum mdr_status snip_inc(struct Snip * snip, struct Ast *ast) {
   if(!v)// err_msg
     return mdr_err;
   const char* str = expand(snip, ast->str, v);
-  if(str) {
-    snip->str = append_strings(base, str);
-    trim(snip->str);
-    return mdr_ok;
-  }
-  return mdr_err;
+  if(!str)
+    return mdr_err;
+  snip->str = append_strings(base, str);
+  return mdr_ok;
 }
 
 static enum mdr_status snip_cmd(struct Snip * snip, struct Ast *ast) {
@@ -111,6 +108,8 @@ static char* expand(struct Snip* base, const char *name, const Vector v) {
       return NULL;
     }
     str = append_strings(str, curr);
+    if(str[strlen(str)-1] == '\n')
+      trim(str);
     free(curr);
   }
   map_set(&base->know->curr, (vtype)name, (vtype)str);
