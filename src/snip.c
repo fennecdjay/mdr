@@ -6,7 +6,7 @@
 
 struct Snip {
   Map known;
-  struct Know know;
+  struct Know *know;
   Vector vec;
   char *str;
 };
@@ -36,7 +36,7 @@ static enum mdr_status snip_str(struct Snip *snip, struct Ast *ast) {
 }
 
 static int snip_done(struct Snip * snip, struct Ast *ast) {
-  char *str = (char*)map_get(&snip->know.curr, ast->str);
+  char *str = (char*)map_get(&snip->know->curr, ast->str);
   if(!str)
     return 0;
   snip->str = append_strings(snip->str, str);
@@ -113,8 +113,7 @@ static char* expand(struct Snip* base, const char *name, const Vector v) {
     str = append_strings(str, curr);
     free(curr);
   }
-  trim(str);
-  map_set(&base->know.curr, (vtype)name, (vtype)str);
+  map_set(&base->know->curr, (vtype)name, (vtype)str);
   return str;
 }
 
@@ -126,7 +125,7 @@ enum mdr_status snip(struct Mdr *mdr) {
     const Vector v = (Vector)VVAL(&mdr->snip, i);
     struct Vector_ vec;
     vector_init(&vec);
-    struct Snip snip = { .known=&mdr->snip, .know=mdr->know, .vec=&vec };
+    struct Snip snip = { .known=&mdr->snip, .know=&mdr->know, .vec=&vec };
     const char *ret = expand(&snip, name, v);
     vector_release(&vec);
     if(!ret)
