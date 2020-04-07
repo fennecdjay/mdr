@@ -70,9 +70,9 @@ do
 done
 
 
-if [ $(which prlimit) ]
-then
-  prlimit -n4 ./mdr tests/exec_snip.mdr &>/dev/null
-  prlimit -n4 ./mdr tests/exec_exec.mdr &>/dev/null
-  prlimit -n4 ./mdr tests/exec_view.mdr &>/dev/null
-fi
+#if [ $(which prlimit) ]
+#then
+#  prlimit -n4 ./mdr tests/exec_snip.mdr &>/dev/null
+#  prlimit -n4 ./mdr tests/exec_exec.mdr &>/dev/null
+#  prlimit -n4 ./mdr tests/exec_view.mdr &>/dev/null
+#fi
