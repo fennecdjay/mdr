@@ -58,10 +58,10 @@ file_test() {
 #TOTAL=$((2 + $(find tests/*.mdr | wc -l)))
 #index=1
 #echo "$index..$TOTAL"
-#if [ "$(./mdr 2>&1)" = "usage: mdr <files>" ]
-#then ok "$index" "usage"
-#else not_ok "$index" "usage"
-#fi
+if [ "$(./mdr 2>&1)" = "usage: mdr <files>" ]
+then ok "$index" "usage"
+else not_ok "$index" "usage"
+fi
 
 #for file in tests/non_existant_file.mdr $(find tests/*.mdr)
 #do
