@@ -63,11 +63,11 @@ then ok "$index" "usage"
 else not_ok "$index" "usage"
 fi
 
-#for file in tests/non_existant_file.mdr $(find tests/*.mdr)
-#do
-#  index=$((index + 1))
-#  file_test "$index" "$file"
-#done
+for file in tests/non_existant_file.mdr $(find tests/*.mdr)
+do
+  index=$((index + 1))
+  file_test "$index" "$file"
+done
 
 
 #if [ $(which prlimit) ]
