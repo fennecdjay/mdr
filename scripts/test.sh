@@ -55,19 +55,19 @@ file_test() {
   return 0
 }
 
-TOTAL=$((2 + $(find tests/*.mdr | wc -l)))
-index=1
-echo "$index..$TOTAL"
-if [ "$(./mdr 2>&1)" = "usage: mdr <files>" ]
-then ok "$index" "usage"
-else not_ok "$index" "usage"
-fi
+#TOTAL=$((2 + $(find tests/*.mdr | wc -l)))
+#index=1
+#echo "$index..$TOTAL"
+#if [ "$(./mdr 2>&1)" = "usage: mdr <files>" ]
+#then ok "$index" "usage"
+#else not_ok "$index" "usage"
+#fi
 
-for file in tests/non_existant_file.mdr $(find tests/*.mdr)
-do
-  index=$((index + 1))
-  file_test "$index" "$file"
-done
+#for file in tests/non_existant_file.mdr $(find tests/*.mdr)
+#do
+#  index=$((index + 1))
+#  file_test "$index" "$file"
+#done
 
 
 #if [ $(which prlimit) ]
