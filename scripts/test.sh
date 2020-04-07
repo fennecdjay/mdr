@@ -56,7 +56,7 @@ file_test() {
 }
 
 #TOTAL=$((2 + $(find tests/*.mdr | wc -l)))
-#index=1
+index=1
 #echo "$index..$TOTAL"
 if [ "$(./mdr 2>&1)" = "usage: mdr <files>" ]
 then ok "$index" "usage"
