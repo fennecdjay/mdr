@@ -55,9 +55,9 @@ file_test() {
   return 0
 }
 
-#TOTAL=$((2 + $(find tests/*.mdr | wc -l)))
+TOTAL=$((2 + $(find tests/*.mdr | wc -l)))
 index=1
-#echo "$index..$TOTAL"
+echo "$index..$TOTAL"
 if [ "$(./mdr 2>&1)" = "usage: mdr <files>" ]
 then ok "$index" "usage"
 else not_ok "$index" "usage"
@@ -70,9 +70,9 @@ do
 done
 
 
-#if [ $(which prlimit) ]
-#then
-#  prlimit -n4 ./mdr tests/exec_snip.mdr &>/dev/null
-#  prlimit -n4 ./mdr tests/exec_exec.mdr &>/dev/null
-#  prlimit -n4 ./mdr tests/exec_view.mdr &>/dev/null
-#fi
+if [ $(which prlimit) ]
+then
+  prlimit -n4 ./mdr tests/exec_snip.mdr &>/dev/null
+  prlimit -n4 ./mdr tests/exec_exec.mdr &>/dev/null
+  prlimit -n4 ./mdr tests/exec_view.mdr &>/dev/null
+fi
