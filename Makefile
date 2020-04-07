@@ -45,7 +45,7 @@ uninstall:
 test: mdr
 	@MDR_MAIN="README.mdr:non_:tests/invalid_include.mdr" bash scripts/test.sh
 	@make mostly-clean
-	@bash scripts/test.sh
+#	@bash scripts/test.sh
 
 mostly-clean:
 	@rm -rf result
