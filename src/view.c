@@ -2,74 +2,97 @@
 #include <stdio.h>
 #include <string.h>
 #include "container.h"
+#include "mdr_string.h"
+#include "range.h"
 #include "mdr.h"
-#include "range_helper.h"
 
 struct View {
   struct Know *know;
-  FILE *file;
+  Map file;
+  struct MdrString *curr;
   enum mdr_status code;
 };
 
 static enum mdr_status actual_view_ast(struct View*, struct Ast*);
 
 static enum mdr_status view_str(struct View *view, struct Ast *ast) {
-  fprintf(view->file, "%s", ast->str);
+  string_append(view->curr, ast->str);
   return mdr_ok;
 }
 
-static void range_print(struct Range *range, FILE *out) {
+static void range_print(struct Range *range, struct MdrString *str) {
   if(!range->ini)
     return;
-  fprintf(out, " %li", range->ini);
-  if(range->end)
-    fprintf(out, ":%li", range->end);
-  else
-    fputc(' ', out);
+  char c[64];
+  sprintf(c, " %li", range->ini);
+  struct MdrString tmp = { .str=c, .sz=strlen(c) };
+  string_append(str, &tmp);
+  if(range->end) {
+    sprintf(c, ":%li", range->ini);
+    struct MdrString tmp = { .str=c, .sz=strlen(c) };
+    string_append(str, &tmp);
+  }
 }
 
 static enum mdr_status view_blk(struct View *view, struct Ast *ast) {
-  fprintf(view->file, "``` %s", ast->str);
-  range_print(&ast->ast->main, view->file);
-  fputc('\n', view->file);
-  struct View new = { .know=view->know, .file=view->file, .code=1};
+  {
+    struct MdrString tmp = { .str="``` ", .sz=4 };
+    string_append(view->curr, &tmp);
+  }
+  string_append(view->curr, ast->str);
+  range_print(&ast->ast->main, view->curr);// inverse arg order
+  {
+    struct MdrString tmp = { .str="\n", .sz=1 };
+    string_append(view->curr, &tmp);
+  }
+  struct View new = { .know=view->know, .curr=view->curr, .code=1};
   const enum mdr_status ret = actual_view_ast(&new, ast->ast);
-  fprintf(view->file, "```");
+  {
+    struct MdrString tmp = { .str="```", .sz=3 };
+    string_append(view->curr, &tmp);
+  }
+  return ret;
+}
+
+static struct MdrString* file_get(struct View *view, struct MdrString *str) {
+  struct MdrString *exists = (struct MdrString*)map_get(view->file, str->str);
+  if(exists)
+    return exists;
+  struct MdrString *ret = filename2str(str->str);
+  map_set(view->file, (vtype)str->str, (vtype)ret);
   return ret;
 }
 
 static enum mdr_status view_inc(struct View *view, struct Ast *ast) {
   if(view->code) {
-    fprintf(view->file, "@[[ %s", ast->str);
-    range_print(&ast->self, view->file);
-    fputs(" ]]", view->file);
+  {
+    struct MdrString tmp = { .str="@[[ ", .sz=4 };
+    string_append(view->curr, &tmp);
+  }
+  string_append(view->curr, ast->str);
+  range_print(&ast->self, view->curr);
+  {
+    struct MdrString tmp = { .str=" ]]", .sz=3 };
+    string_append(view->curr, &tmp);
+  }
     return mdr_ok;
   }
-  if(ast->dot) {
-    if(!ast->self.ini)
-      return mdr_cpy(view->file, ast->str);
-    else {
-      struct FileRange fr = { };
-      if(filerange_init(&fr, ast->str, &ast->self) == mdr_err)
-        return mdr_err;
-      while(filerange_before(&fr));
-      while(filerange_while(&fr))
-        filerange_write(&fr, view->file);
-      filerange_release(&fr);
-      fseek(view->file, -1, SEEK_END);
-      return mdr_ok;
-    }
-  }
-  char *str = (char*)snippet_get(view->know, ast->str);// know_done
+  struct MdrString *str = !ast->dot ? (struct MdrString*)snippet_get(view->know, ast->str->str) :
+    file_get(view, ast->str);
   if(!str)
     return mdr_err;
-  struct StrRange sr = { .str=str, .range=ast->self, .file=view->file };
-  range_include(&sr);
+  struct RangeIncluder sr = { .str=str->str, .range=ast->self };
+  string_append_range(view->curr, &sr);
   return mdr_ok;
 }
 
 static enum mdr_status view_cmd(struct View *view, struct Ast *ast) {
-  return cmd_file(view->file, ast->str);
+  struct MdrString *str = cmd(ast->str->str);
+  if(!str)
+    return mdr_err;
+  string_append(view->curr, str);
+  free_string(str);
+  return mdr_ok;
 }
 
 typedef enum mdr_status (*view_ast_fn)(struct View*, struct Ast*);
@@ -87,19 +110,14 @@ static enum mdr_status actual_view_ast(struct View *view, struct Ast *ast) {
   return mdr_ok;
 }
 
-static FILE* view_open(const char *name) {
-  const size_t sz = strlen(name);
-  char str[sz];
-  memcpy(str, name, sz - 1);
-  trimsz(str, sz);
-  return mdr_open_write(str);
-}
-
 enum mdr_status view_ast(struct Mdr *mdr, struct Ast *ast) {
-  struct View view = { .know=&mdr->know};
-  if(!(view.file = view_open(mdr->name)))
-    return mdr_err;
+  struct View view = { .know=&mdr->know, .file=&mdr->file_done, .curr=new_string("", 0) };
   const enum mdr_status ret = actual_view_ast(&view, ast);
-  fclose(view.file);
+  if(ret == mdr_err)
+    free_string(view.curr);
+  else {
+    trim(mdr->name);
+    map_set(&mdr->file_done, (vtype)mdr->name, (vtype)view.curr);
+  }
   return ret;
 }

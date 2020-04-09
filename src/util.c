@@ -4,35 +4,37 @@
 #include <stdarg.h>
 #include <assert.h>
 #include "container.h"
+#include "mdr_string.h"
+#include "range.h"
 #include "mdr.h"
 
-static char* file2str(FILE *f) {
+static struct MdrString* file2str(FILE *f) {
   char line[128];
-  char *buf = empty_string();
-  unsigned int size = 1;
+  struct MdrString *buf = new_string("", 0);
+  buf->sz = 0;
   while(fgets(line, sizeof(line), f)) {
-    size += strlen(line);
-    strcat(buf=realloc(buf,size + 1), line);
+    buf->sz += strlen(line);
+    strcat(buf->str = realloc(buf->str, buf->sz + 1), line);
   }
   return buf;
 }
 
-char* filename2str(const char* name) {
+struct MdrString* filename2str(const char* name) {
   FILE * f = mdr_open_read(name);
   if(!f)
     return NULL;
-  char *str = file2str(f);
-  fclose (f);
+  struct MdrString *str = file2str(f);
+  fclose(f);
   return str;
 }
 
-char* cmd(const char *str) {
+struct MdrString* cmd(const char *str) {
   FILE *f = popen(str, "r");
   if(!f) {
     mdr_fail("can't exec '%s'\n", str);
     return NULL;
   }
-  char *ret = file2str(f);
+  struct MdrString *ret = file2str(f);
   pclose(f);
   return ret;
 }
@@ -42,11 +44,11 @@ int cmd_file(FILE *file, const char *str) {
   (void)file;
   return 1;
 #endif
-  char *ret = cmd(str);
+  struct MdrString *ret = cmd(str);
   if(!ret)
     return mdr_err;
-  fprintf(file, "%s", ret);
-  free(ret);
+  fprintf(file, "%s", ret->str);
+  free_string(ret);
   return mdr_ok;
 }
 
@@ -60,16 +62,6 @@ enum mdr_status mdr_fail(const char* fmt, ...) {
   vfprintf(stderr, fmt, arg);
   va_end(arg);
   return mdr_err;
-}
-
-enum mdr_status mdr_cpy(FILE *tgt, const char* name) {
-  FILE *src = mdr_open_read(name);
-  char buf[4096];
-  size_t size;
-  while((size = fread(buf, 1, BUFSIZ, src)))
-    fwrite(buf, 1, size, tgt);
-  fclose(src);
-  return mdr_ok;
 }
 
 FILE* mdr_open_read(const char *str) {
@@ -95,14 +87,3 @@ vtype snippet_get(struct Know *know, const char *str) {
   (void)mdr_fail("can't find '%s' snippet\n", str);
   return 0;
 }
-
-#ifdef __MINGW32__
-char *strndup(const char *s, size_t n) {
-  char* c = malloc(n+1);
-  if(c) {
-    strncpy(c, s, n);
-    c[n] = '\0';
-  }
-  return c;
-}
-#endif

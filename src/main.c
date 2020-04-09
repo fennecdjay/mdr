@@ -2,14 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "container.h"
+#include "mdr_string.h"
+#include "range.h"
 #include "mdr.h"
 
 struct Ast* prepare(struct Mdr *mdr, char *filename) {
-  char * str= filename2str(filename);
+  struct MdrString *str= filename2str(filename);
   if(!str)
     return NULL;
-  struct Ast *ast = mdr_parse(mdr, str);
-  free(str);
+  struct Ast *ast = mdr_parse(mdr, str->str);
+  free_string(str);
   return ast;
 }
 
@@ -71,15 +73,15 @@ int main(int argc, char **argv) {
   fill_global(&global);
   for(int i = 1; i < argc; ++i) {
     struct Mdr mdr = { .name=argv[i], .know = { .global=&global } };
-    char * str= filename2str(argv[i]);
+    struct MdrString *str= filename2str(argv[i]);
     if(str) {
-      run(&mdr, str);
-      free(str);
+      run(&mdr, str->str);
+      free_string(str);
     }
   }
   for(vtype i = 0; i < map_size(&global); ++i) {
-    free((char*)VVAL(&global, i));
     free((char*)VKEY(&global, i));
+    free_string((struct MdrString*)VVAL(&global, i));
   }
   map_release(&global);
   return EXIT_SUCCESS;

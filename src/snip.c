@@ -2,25 +2,19 @@
 #include <stdio.h>
 #include <string.h>
 #include "container.h"
+#include "mdr_string.h"
+#include "range.h"
 #include "mdr.h"
 
 struct Snip {
   Map known;
   struct Know *know;
   Vector vec;
-  char *str;
+  struct MdrString *str;
 };
 
 static enum mdr_status actual_snip_ast(struct Snip * snip, struct Ast *ast);
-static char* expand(struct Snip* base, const char *name, const Vector v);
-
-static char * append_strings(char *old, const char *new) {
-  size_t len = strlen(old) + strlen(new) + 1;
-  char *out = malloc(len);
-  sprintf(out, "%s%s", old, new);
-  free(old);
-  return out;
-}
+static struct MdrString* expand(struct Snip* base, const char *name, const Vector v);
 
 static int snip_exists(struct Snip *snip, char *name) {
   for(vtype i = 0; i < vector_size(snip->vec); ++i) {
@@ -31,31 +25,45 @@ static int snip_exists(struct Snip *snip, char *name) {
 }
 
 static enum mdr_status snip_str(struct Snip *snip, struct Ast *ast) {
-  snip->str = append_strings(snip->str, ast->str);
+  string_append(snip->str, ast->str);
   return mdr_ok;
 }
 
 static int snip_done(struct Snip * snip, struct Ast *ast) {
-  char *str = (char*)map_get(&snip->know->curr, ast->str);
+  struct MdrString *str = (struct MdrString*)map_get(&snip->know->curr, ast->str->str);
   if(!str)
     return 0;
-  snip->str = append_strings(snip->str, str);
+  string_append(snip->str, str);
   return 1;
 }
 
-static enum mdr_status snip_inc(struct Snip * snip, struct Ast *ast) {
-  if(snip_exists(snip, ast->str))
-    return mdr_fail("recursive snippet '%s'\n", ast->str);
+static struct MdrString* include_string(struct Snip *snip, struct Ast *ast) {
   if(snip_done(snip, ast))
-    return mdr_ok;
-  char *base = snip->str;
-  const Vector v = (Vector)map_get(snip->known, ast->str);// know->done
-  if(!v)// err_msg
-    return mdr_err;
-  const char* str = expand(snip, ast->str, v);
+    return (struct MdrString*)mdr_ok;
+  const Vector v = (Vector)map_get(snip->known, ast->str->str);
+  if(v)
+    return expand(snip, ast->str->str, v);
+  (void)mdr_fail("missing snippet '%s'\n", ast->str->str);
+  return NULL;
+}
+
+static enum mdr_status snip_inc(struct Snip *snip, struct Ast *ast) {
+  if(snip_exists(snip, ast->str->str))
+    return mdr_fail("recursive snippet '%s'\n", ast->str->str);
+  struct MdrString *str = !ast->dot ?
+    include_string(snip, ast) : filename2str(ast->str->str);
   if(!str)
     return mdr_err;
-  snip->str = append_strings(base, str);
+  if(str == (struct MdrString*)mdr_ok)
+    return mdr_ok;
+  if(!ast->self.ini)
+    string_append(snip->str, str);
+  else {
+    struct RangeIncluder range = { .str=str->str, .range=ast->self };
+    string_append_range(snip->str, &range);
+  }
+  if(ast->dot)
+    free_string(str);
   return mdr_ok;
 }
 
@@ -63,12 +71,11 @@ static enum mdr_status snip_cmd(struct Snip * snip, struct Ast *ast) {
 #ifdef __AFL_HAVE_MANUAL_CONTROL
 return mdr_ok;
 #endif
-  char *str = cmd(ast->str);
+  struct MdrString *str = cmd(ast->str->str);
   if(!str)
     return mdr_err;
-  char *base = snip->str;
-  snip->str = append_strings(base, str);
-  free(str);
+  string_append(snip->str, str);
+  free_string(str);
   return mdr_ok;
 }
 
@@ -81,37 +88,36 @@ static const snip_ast_fn _snip_ast[] = {
 };
 
 static enum mdr_status actual_snip_ast(struct Snip * snip, struct Ast *ast) {
-  do {
-    enum mdr_status ret = _snip_ast[ast->type](snip, ast);
-    if(ret == mdr_err)
+  do if(_snip_ast[ast->type](snip, ast) == mdr_err)
       return mdr_err;
-  } while((ast = ast->next));
+  while((ast = ast->next));
   return mdr_ok;
 }
 
-static char* snip_get(struct Snip* base, struct Ast *ast) {
+static struct MdrString* snip_get(struct Snip* base, struct Ast *ast) {
   struct Snip snip = { .known=base->known, .know=base->know, .vec=base->vec };
-  snip.str = empty_string();
+  snip.str = new_string("", 0);
   if(actual_snip_ast(&snip, ast) != mdr_err)
     return snip.str;
-  free(snip.str);
+  free_string(snip.str);
   return NULL;
 }
 
-static char* expand(struct Snip* base, const char *name, const Vector v) {
+static struct MdrString* expand(struct Snip* base, const char *name, const Vector v) {
   vector_add(base->vec, (vtype)name);
-  char *str = empty_string();
+  struct MdrString *str = new_string("", 0);
   for(vtype i = 0; i < vector_size(v); ++i) {
-    char *curr = snip_get(base, (struct Ast*)vector_at(v, i));
+    struct MdrString *curr = snip_get(base, (struct Ast*)vector_at(v, i));
     if(!curr) {
-      free(str);
+      free_string(str);
       return NULL;
     }
-    str = append_strings(str, curr);
-    const size_t sz = strlen(str);
-    if(sz && str[sz - 1] == '\n')
-      trim(str);
-    free(curr);
+    string_append(str, curr);
+    if(str->sz && str->str[str->sz - 1] == '\n') {
+      trim(str->str);
+      --str->sz;
+    }
+    free_string(curr);
   }
   map_set(&base->know->curr, (vtype)name, (vtype)str);
   return str;
@@ -126,7 +132,7 @@ enum mdr_status snip(struct Mdr *mdr) {
     struct Vector_ vec;
     vector_init(&vec);
     struct Snip snip = { .known=&mdr->snip, .know=&mdr->know, .vec=&vec };
-    const char *ret = expand(&snip, name, v);
+    const struct MdrString *ret = expand(&snip, name, v);
     vector_release(&vec);
     if(!ret)
       return mdr_err;

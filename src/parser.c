@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "container.h"
+#include "mdr_string.h"
+#include "range.h"
 #include "mdr.h"
 #include "lexer.h"
 
@@ -80,7 +82,7 @@ static void get_lines(struct Lexer *lex, struct Range *r) {
 static enum mdr_status ast_blk(struct Parser *parser) {
   if(parser->blk)
     return mdr_end;
-  char *str = snippet_name(parser->lex);
+  struct MdrString *str = snippet_name(parser->lex);
   if(!str)
     return mdr_fail("unstarted block\n");
   struct Range e = {};
@@ -90,10 +92,10 @@ static enum mdr_status ast_blk(struct Parser *parser) {
   struct Parser new_parser = { .lex=parser->lex, .blk=1, .snip=parser->snip, .file=parser->file };
   struct Ast *section = parse(&new_parser);
   if(!section) {
-    free(str);
+    free_string(str);
     return mdr_err;
   }
-  known_set(dot ? parser->file : parser->snip, str, section);
+  known_set(dot ? parser->file : parser->snip, str->str, section);
   struct Ast *ast = new_ast(parser, mdr_blk);
   ast->str = str;
   ast->dot = dot;
@@ -142,7 +144,7 @@ static enum mdr_status _parse(struct Parser *parser) {
 }
 
 void free_ast(struct Ast *ast) {
-  free(ast->str);
+  free_string(ast->str);
   if(ast->next)
     free_ast(ast->next);
   if(ast->ast)

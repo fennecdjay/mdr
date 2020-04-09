@@ -3,6 +3,8 @@
 #include <string.h>
 #include <ctype.h>
 #include "container.h"
+#include "mdr_string.h"
+#include "range.h"
 #include "mdr.h"
 #include "lexer.h"
 
@@ -47,7 +49,7 @@ static inline unsigned int is_cmd(const char *str) {
 
 enum mdr_status _comment(struct Lexer *lex) {
   lex->str += 2;
-  lex->tok = strdup("@");
+  lex->tok = new_string("@", 1);
   return mdr_str;
 }
 
@@ -71,7 +73,7 @@ enum mdr_status _cmd(struct Lexer *lex) {
   lex_eol(lex);
   if(lex->idx == 1)
     return mdr_fail("missing exec command\n");
-  lex->tok = strndup(buf, lex->idx - 1);
+  lex->tok = new_string(buf, lex->idx - 1);
   return mdr_cmd;
 }
 
@@ -85,7 +87,7 @@ enum mdr_status mdr_command(struct Lexer *lex) {
     return _inc(lex);
   if(is_cmd(str))
     return _cmd(lex);
-  lex->tok = strdup("@");
+  lex->tok = new_string("@", 1);
   ++lex->str;
   return mdr_str;
 }
@@ -104,7 +106,7 @@ enum mdr_status tokenize(struct Lexer *lex) {
   }
   if(!lex->idx)
     return mdr_end;
-  lex->tok = strndup(buf, lex->idx);
+  lex->tok = new_string(buf, lex->idx);
   return mdr_str;
 }
 
@@ -120,12 +122,14 @@ static unsigned int path(struct Lexer *lex) {
   return 1;
 }
 
-char* snippet_name(struct Lexer *lex) {
+struct MdrString* snippet_name(struct Lexer *lex) {
   eat_space(lex);
   lex->idx = 0;
   char *const buf = lex->str;
   path(lex);
-  char *ret = lex->idx ? strndup(buf, lex->idx) : NULL;
+  if(!lex->idx)
+    return NULL;
+  struct MdrString *ret = new_string(buf, lex->idx);
   eat_space(lex);
   return ret;
 }
