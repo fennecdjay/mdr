@@ -47,13 +47,17 @@ static inline unsigned int is_cmd(const char *str) {
   return !strncmp(str, "exec", 4);
 }
 
-enum mdr_status _comment(struct Lexer *lex) {
+static inline unsigned int is_hide(const char *str) {
+  return !strncmp(str, "hide", 4);
+}
+
+static enum mdr_status _comment(struct Lexer *lex) {
   lex->str += 2;
   lex->tok = new_string("@", 1);
   return mdr_str;
 }
 
-enum mdr_status _inc(struct Lexer *lex) {
+static enum mdr_status _inc(struct Lexer *lex) {
   lex->str += 3;
   if(!(lex->tok = snippet_name(lex)))
     return mdr_fail("missing include name\n");
@@ -61,12 +65,12 @@ enum mdr_status _inc(struct Lexer *lex) {
   return mdr_inc;
 }
 
-enum mdr_status _blk(struct Lexer *lex) {
+static enum mdr_status _blk(struct Lexer *lex) {
   lex->str += 4;
   return mdr_blk;
 }
 
-enum mdr_status _cmd(struct Lexer *lex) {
+static enum mdr_status _cmd(struct Lexer *lex) {
   lex->str += 5;
   eat_space(lex);
   char *const buf = lex->str;
@@ -77,7 +81,13 @@ enum mdr_status _cmd(struct Lexer *lex) {
   return mdr_cmd;
 }
 
-enum mdr_status mdr_command(struct Lexer *lex) {
+static enum mdr_status _hide(struct Lexer *lex) {
+  lex->dot = 1;
+  _cmd(lex);
+  return mdr_cmd;
+}
+
+static enum mdr_status mdr_command(struct Lexer *lex) {
   char *const str = lex->str + 1;
   if(is_comment(str))
     return _comment(lex);
@@ -87,6 +97,8 @@ enum mdr_status mdr_command(struct Lexer *lex) {
     return _inc(lex);
   if(is_cmd(str))
     return _cmd(lex);
+  if(is_hide(str))
+    return _hide(lex);
   lex->tok = new_string("@", 1);
   ++lex->str;
   return mdr_str;

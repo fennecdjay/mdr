@@ -26,7 +26,7 @@ struct Range actual_range(char *str, const struct Range *src) {
 }
 
 static void _string_append_range(struct MdrString *base, struct RangeIncluder *sr) {
-  char *str = sr->str;
+  char *str = sr->str->str;
   sr->range = actual_range(base->str, &sr->range);
   unsigned int count = 0;
   while(str != (char*)1 && ++count < sr->range.ini && (str = strchr(str, '\n') + 1));
@@ -46,10 +46,9 @@ static void _string_append_range(struct MdrString *base, struct RangeIncluder *s
 }
 
 void string_append_range(struct MdrString *base, struct RangeIncluder *sr) {
-  if(!sr->range.ini) {
-    struct MdrString str = { .str=sr->str, .sz=strlen(sr->str) };
-    string_append(base, &str);
-  } else
+  if(!sr->range.ini)
+    string_append(base, sr->str);
+  else
     _string_append_range(base, sr);
 }
 

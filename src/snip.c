@@ -59,7 +59,7 @@ static enum mdr_status snip_inc(struct Snip *snip, struct Ast *ast) {
   if(!ast->self.ini)
     string_append(snip->str, str);
   else {
-    struct RangeIncluder range = { .str=str->str, .range=ast->self };
+    struct RangeIncluder range = { .str=str, .range=ast->self };
     string_append_range(snip->str, &range);
   }
   if(ast->dot)

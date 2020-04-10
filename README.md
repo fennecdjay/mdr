@@ -46,14 +46,11 @@ puts("Hello, World!");
 
 
 ### Compile
-with this line
-``` sh
-@exec cc hello_world.c -o hello_world
-```
-we compile *hello_world.c*.
+let's compile *hello_world.c*.
 
-``` sh
-```
+<span class="MdrCmdPre">cc hello_world.c -o hello_world</span>
+<p class="MdrCmd">
+</p>
 
 Yes, there should be no output, and that good news.
 
@@ -61,19 +58,13 @@ Yes, there should be no output, and that good news.
 
 ### Check
 Let's look at hello_world.c
-
-``` sh
-@exec cat hello_world.c
 ```
-
-``` c
 #include <stdio.h>
 
 int main(int argc, char** argv) {
   puts("Hello, World!");
 }
 ```
-
 That's the content of the source file we generated (and compiled).
 
 
@@ -81,13 +72,11 @@ That's the content of the source file we generated (and compiled).
 ### Test
 
 Then we run it
-``` sh
-@exec ./hello_world
-```
 
-``` sh
+<span class="MdrCmdPre">./hello_world</span>
+<p class="MdrCmd">
 Hello, World!
-```
+</p>
 
 Do we read *Hello World!* ?
 Assuming yes, let's continue.
@@ -99,9 +88,11 @@ Let's try it
 ```
 
 and the result is
-``` sh
+
+<span class="MdrCmdPre">[ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"</span>
+<p class="MdrCmd">
 OK
-```
+</p>
 
 ## Building
 
@@ -139,4 +130,3 @@ or just copy `mdr` somewhere in your path.
 
 generated from [this file](https://github.com/fennecdjay/mdr/blob/master/README.mdr)
 
-<!-- cleaning -->

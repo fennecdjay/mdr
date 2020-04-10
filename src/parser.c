@@ -54,7 +54,9 @@ static enum mdr_status ast_str(struct Parser *parser) {
 static enum mdr_status ast_cmd(struct Parser *parser) {
   struct Ast *ast = new_ast(parser, mdr_cmd);
   ast->str = parser->lex->tok;
+  ast->dot = parser->lex->dot;
   parser->lex->tok = NULL;
+  parser->lex->dot = 0;
   return mdr_cmd;
 }
 

@@ -7,7 +7,7 @@ struct Range actual_range(char*, const struct Range*);
 
 
 struct RangeIncluder {
-  char *str;
+  struct MdrString *str;
   struct Range range;
 };
 

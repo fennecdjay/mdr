@@ -21,10 +21,12 @@ static enum mdr_status file_str(struct File *file, struct Ast *ast) {
 }
 
 static enum mdr_status file_inc(struct File *file, struct Ast *ast) {
+// misses files.
+// use know_get()
   struct MdrString *str = (struct MdrString*)snippet_get(file->know, ast->str->str);// know_done
   if(!str)
     return mdr_err;
-  struct RangeIncluder rs = { .str=str->str, .range=ast->self };
+  struct RangeIncluder rs = { .str=str, .range=ast->self };
   string_append_range(file->curr, &rs);
   return mdr_ok;
 }
@@ -45,35 +47,7 @@ static const file_ast_fn _file_ast[] = {
   file_inc,
   file_cmd,
 };
-/*
-struct RangeExcluder {
-  struct MdrString *end;
-  struct MdrString *src;
-};
 
-static struct MdrString* excluder_ini(struct RangeExcluder *ex, const struct Range *range) {
-  char *str = ex->src->str;
-  struct Range r = actual_range(str, range);
-  struct LineCounter lc = { .str=ex->src->str };
-  linecounter_run(&lc, r.ini - 1);
-  struct MdrString *ini = new_string(ex->src->str, lc.sz);
-  linecounter_run(&lc, r.end - 1);
-  const long sz = lc.sz;
-  lc.count = lc.sz = 0;
-  linecounter_run(&lc, LONG_MAX);
-  if(r.end >= r.ini)
-    ex->end = new_string(ex->src->str + sz, lc.sz);
-  return ini;
-}
-
-static void excluder_end(struct RangeExcluder *ex, struct MdrString *str) {
-  free_string(ex->src);
-  if(!ex->end)
-    return;
-  string_append(str, ex->end);
-  free_string(ex->end);
-}
-*/
 static enum mdr_status actual_file_ast(struct File *file, struct Ast *ast) {
   enum mdr_status ret = mdr_ok;
   do {

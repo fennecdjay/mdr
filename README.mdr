@@ -46,15 +46,9 @@ puts("Hello, World!");
 
 
 ### Compile
-with this line
-``` sh
-@@exec cc hello_world.c -o hello_world
-```
-we compile *hello_world.c*.
+let's compile *hello_world.c*.
 
-``` sh
 @exec cc hello_world.c -o hello_world
-```
 
 Yes, there should be no output, and that good news.
 
@@ -62,15 +56,9 @@ Yes, there should be no output, and that good news.
 
 ### Check
 Let's look at hello_world.c
-
-``` sh
-@@exec cat hello_world.c
 ```
-
-``` c
-@exec cat hello_world.c
+@hide cat hello_world.c
 ```
-
 That's the content of the source file we generated (and compiled).
 
 
@@ -78,13 +66,8 @@ That's the content of the source file we generated (and compiled).
 ### Test
 
 Then we run it
-``` sh
-@@exec ./hello_world
-```
 
-``` sh
 @exec ./hello_world
-```
 
 Do we read *Hello World!* ?
 Assuming yes, let's continue.
@@ -96,9 +79,8 @@ Let's try it
 ```
 
 and the result is
-``` sh
+
 @exec [ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"
-```
 
 ## Building
 
@@ -136,5 +118,4 @@ or just copy `mdr` somewhere in your path.
 
 generated from [this file](https://github.com/fennecdjay/mdr/blob/master/README.mdr)
 
-<!-- cleaning -->
-@exec rm hello_world hello_world.c
+@hide rm hello_world hello_world.c
