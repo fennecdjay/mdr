@@ -62,7 +62,7 @@ static enum mdr_status view_blk(struct View *view, struct Ast *ast) {
     string_append(view->curr, &tmp);
   }
   string_append(view->curr, ast->str);
-  range_print(&ast->ast->main, view->curr);// inverse arg order
+  range_print(&ast->range, view->curr);// inverse arg order
   {
     struct MdrString tmp = { .str="\n", .sz=1 };
     string_append(view->curr, &tmp);
@@ -92,7 +92,7 @@ static enum mdr_status view_inc(struct View *view, struct Ast *ast) {
     string_append(view->curr, &tmp);
   }
   string_append(view->curr, ast->str);
-  range_print(&ast->self, view->curr);
+  range_print(&ast->range, view->curr);
   {
     struct MdrString tmp = { .str=" ]]", .sz=3 };
     string_append(view->curr, &tmp);
@@ -103,7 +103,7 @@ static enum mdr_status view_inc(struct View *view, struct Ast *ast) {
     file_get(view, ast->str);
   if(!str)
     return mdr_err;
-  struct RangeIncluder sr = { .str=str, .range=ast->self };
+  struct RangeIncluder sr = { .str=str, .range=ast->range };
   string_append_range(view->curr, &sr);
   return mdr_ok;
 }

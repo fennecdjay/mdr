@@ -26,7 +26,7 @@ static enum mdr_status file_inc(struct File *file, struct Ast *ast) {
   struct MdrString *str = (struct MdrString*)snippet_get(file->know, ast->str->str);// know_done
   if(!str)
     return mdr_err;
-  struct RangeIncluder rs = { .str=str, .range=ast->self };
+  struct RangeIncluder rs = { .str=str, .range=ast->range };
   string_append_range(file->curr, &rs);
   return mdr_ok;
 }
@@ -48,16 +48,11 @@ static const file_ast_fn _file_ast[] = {
   file_cmd,
 };
 
-static enum mdr_status actual_file_ast(struct File *file, struct Ast *ast) {
+static enum mdr_status actual_file_ast(struct File *file, struct Ast *src) {
   enum mdr_status ret = mdr_ok;
-  do {
-    struct RangeExcluder ex = { .src=file->curr };
-    if(ast->main.ini)
-      file->curr = excluder_ini(&ex, &ast->main);
-    ret = _file_ast[ast->type](file, ast);
-    if(ex.end)
-      excluder_end(&ex, file->curr);
-  } while(ret != mdr_err && (ast = ast->next));
+  struct Ast* ast = src->ast;
+  do ret = _file_ast[ast->type](file, ast);
+  while(ret != mdr_err && (ast = ast->next));
   return ret;
 }
 
@@ -69,7 +64,12 @@ enum mdr_status file(struct Mdr *mdr) {
     const Vector v = (Vector)map_at(&mdr->file, i);
     for(vtype j = 0; ret == mdr_ok && j < vector_size(v); ++j) {
       struct Ast *ast = (struct Ast*)vector_at(v, j);
+      struct RangeExcluder ex = { .src=file.curr };
+      if(ast->range.ini)
+        file.curr = excluder_ini(&ex, &ast->range);
       ret = actual_file_ast(&file, ast);
+      if(ex.end)
+        excluder_end(&ex, file.curr);
     }
     if(ret == mdr_ok)
       map_set(&mdr->file_done, (vtype)name, (vtype)file.curr);

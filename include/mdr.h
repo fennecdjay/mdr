@@ -19,8 +19,7 @@ struct Ast {
   struct MdrString *str;
   struct Ast *ast;
   struct Ast *next;
-  struct Range main;
-  struct Range self;
+  struct Range range;
   int dot;
   enum mdr_status type;
 };

@@ -56,10 +56,10 @@ static enum mdr_status snip_inc(struct Snip *snip, struct Ast *ast) {
     return mdr_err;
   if(str == (struct MdrString*)mdr_ok)
     return mdr_ok;
-  if(!ast->self.ini)
+  if(!ast->range.ini)
     string_append(snip->str, str);
   else {
-    struct RangeIncluder range = { .str=str, .range=ast->self };
+    struct RangeIncluder range = { .str=str, .range=ast->range };
     string_append_range(snip->str, &range);
   }
   if(ast->dot)
@@ -107,7 +107,7 @@ static struct MdrString* expand(struct Snip* base, const char *name, const Vecto
   vector_add(base->vec, (vtype)name);
   struct MdrString *str = new_string("", 0);
   for(vtype i = 0; i < vector_size(v); ++i) {
-    struct MdrString *curr = snip_get(base, (struct Ast*)vector_at(v, i));
+    struct MdrString *curr = snip_get(base, ((struct Ast*)vector_at(v, i))->ast);
     if(!curr) {
       free_string(str);
       return NULL;

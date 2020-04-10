@@ -19,8 +19,8 @@ struct Parser {
 static void known_set(const Map map, const char *key, struct Ast *ast) {
   const Vector exists = (Vector)map_get(map, key);
   if(exists) {
-      vector_add(exists, (vtype)ast);
-      return;
+    vector_add(exists, (vtype)ast);
+    return;
   }
   const Vector v = malloc(sizeof(*v));
   vector_init(v);
@@ -72,12 +72,12 @@ static enum mdr_status ast_blk(struct Parser *parser) {
     free_string(str);
     return mdr_err;
   }
-  known_set(dot ? parser->file : parser->snip, str->str, section);
   struct Ast *ast = new_ast(parser, mdr_blk);
   ast->str = str;
   ast->dot = dot;
   ast->ast = section;
-  ast->ast->main = e;
+  ast->range = e;
+  known_set(dot ? parser->file : parser->snip, str->str, ast);
   return mdr_blk;
 }
 
@@ -87,7 +87,7 @@ static enum mdr_status ast_inc(struct Parser *parser) {
   parser->lex->tok = NULL;
   section->dot = parser->lex->dot;
   parser->lex->dot = 0; // what about idx ?
-  section->self = parser->lex->rng;
+  section->range = parser->lex->rng;
   parser->lex->rng.ini = parser->lex->rng.end = 0;
   if(*parser->lex->str != ']')
     return mdr_err; // msg
