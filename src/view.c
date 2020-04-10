@@ -53,7 +53,7 @@ static void range_print(struct Range *range, struct MdrString *str) {
     return;
   string_append_long(str, ' ', range->ini);
   if(range->end)
-    string_append_long(str, ':', range->ini);
+    string_append_long(str, ':', range->end);
 }
 
 static enum mdr_status view_blk(struct View *view, struct Ast *ast) {

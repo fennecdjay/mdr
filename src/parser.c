@@ -60,36 +60,11 @@ static enum mdr_status ast_cmd(struct Parser *parser) {
   return mdr_cmd;
 }
 
-static char* get_end(char *str) {
-  while(str) {
-    if(*str == ':')
-      return str;
-    if(*str == '\n')
-      break;
-    ++str;
-  }
-  return NULL;
-}
-
-static void get_lines(struct Lexer *lex, struct Range *r) {
-  char *str = lex->str;
-  if(!str)
-    return;
-  r->ini = strtol(str, NULL, 10);
-  const char *end = get_end(str);
-  if(end)
-    r->end = strtol(end + 1, NULL, 10);
-}
-
 static enum mdr_status ast_blk(struct Parser *parser) {
   if(parser->blk)
     return mdr_end;
-  struct MdrString *str = snippet_name(parser->lex);
-  if(!str)
-    return mdr_fail("unstarted block\n");
-  struct Range e = {};
-  get_lines(parser->lex, &e);
-  lex_eol(parser->lex);
+  struct MdrString *str = parser->lex->tok;
+  struct Range e = parser->lex->rng;
   const int dot = parser->lex->dot;
   struct Parser new_parser = { .lex=parser->lex, .blk=1, .snip=parser->snip, .file=parser->file };
   struct Ast *section = parse(&new_parser);
@@ -112,9 +87,10 @@ static enum mdr_status ast_inc(struct Parser *parser) {
   parser->lex->tok = NULL;
   section->dot = parser->lex->dot;
   parser->lex->dot = 0; // what about idx ?
-  get_lines(parser->lex, &section->self);
-  while(*parser->lex->str != ']')
-    ++parser->lex->str;
+  section->self = parser->lex->rng;
+  parser->lex->rng.ini = parser->lex->rng.end = 0;
+  if(*parser->lex->str != ']')
+    return mdr_err; // msg
   ++parser->lex->str;
   if(*parser->lex->str != ']')
     return mdr_err; // msg

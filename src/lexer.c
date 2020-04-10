@@ -12,20 +12,48 @@ static inline unsigned int lex_end(struct Lexer *lex) {
   return *lex->str == '\0';
 }
 
-void lex_adv(struct Lexer *lex) {
+static void lex_adv(struct Lexer *lex) {
   ++lex->str;
   ++lex->idx;
 }
 
-void lex_eol(struct Lexer *lex) {
+static void lex_eol(struct Lexer *lex) {
   while(!lex_end(lex) && *lex->str != '\n')
     lex_adv(lex);
   lex_adv(lex);
 }
 
+static inline unsigned int is_path(const char c) {
+  return c == '.' || c == '/';
+}
+
+static unsigned int lex_is_path(struct Lexer *lex) {
+  if(!is_path(*lex->str))
+    return 0;
+  return lex->dot = 1;
+}
+
+static unsigned int path(struct Lexer *lex) {
+  while(!lex_end(lex) && (isalnum(*lex->str) || *lex->str == '_' || lex_is_path(lex)))
+    lex_adv(lex);
+  return 1;
+}
+
 static inline void eat_space(struct Lexer *lex) {
   while(*lex->str != '\n' && isspace(*lex->str))
     ++lex->str;
+}
+
+static struct MdrString* snippet_name(struct Lexer *lex) {
+  eat_space(lex);
+  lex->idx = 0;
+  char *const buf = lex->str;
+  path(lex);
+  if(!lex->idx)
+    return NULL;
+  struct MdrString *ret = new_string(buf, lex->idx);
+  eat_space(lex);
+  return ret;
 }
 
 static inline unsigned int is_comment(const char *str) {
@@ -57,16 +85,48 @@ static enum mdr_status _comment(struct Lexer *lex) {
   return mdr_str;
 }
 
+static char* get_end(char *str) {
+  while(str) {
+    if(*str == ':')
+      return str;
+    if(*str == '\n')
+      break;
+    ++str;
+  }
+  return NULL;
+}
+
+static void lex_range(struct Lexer *lex) {
+  char *str = lex->str;
+  if(!str)
+    return;
+  lex->rng.ini = lex->rng.end = 0;
+  lex->rng.ini = strtol(str, &lex->str, 10);
+  const char *end = get_end(str);
+  if(end)
+    lex->rng.end = strtol(end + 1, &lex->str, 10);
+}
+
 static enum mdr_status _inc(struct Lexer *lex) {
   lex->str += 3;
   if(!(lex->tok = snippet_name(lex)))
     return mdr_fail("missing include name\n");
   eat_space(lex);
+  lex_range(lex);
+  eat_space(lex);
   return mdr_inc;
 }
 
 static enum mdr_status _blk(struct Lexer *lex) {
+  lex->alt = !lex->alt;
   lex->str += 4;
+  if(lex->alt) {
+    if(!(lex->tok = snippet_name(lex)))
+      return mdr_fail("unstarted block\n");
+    eat_space(lex);
+    lex_range(lex);
+    lex_eol(lex);
+  }
   return mdr_blk;
 }
 
@@ -120,28 +180,4 @@ enum mdr_status tokenize(struct Lexer *lex) {
     return mdr_end;
   lex->tok = new_string(buf, lex->idx);
   return mdr_str;
-}
-
-static unsigned int lex_is_path(struct Lexer *lex) {
-  if(!is_path(*lex->str))
-    return 0;
-  return lex->dot = 1;
-}
-
-static unsigned int path(struct Lexer *lex) {
-  while(!lex_end(lex) && (isalnum(*lex->str) || *lex->str == '_' || lex_is_path(lex)))
-    lex_adv(lex);
-  return 1;
-}
-
-struct MdrString* snippet_name(struct Lexer *lex) {
-  eat_space(lex);
-  lex->idx = 0;
-  char *const buf = lex->str;
-  path(lex);
-  if(!lex->idx)
-    return NULL;
-  struct MdrString *ret = new_string(buf, lex->idx);
-  eat_space(lex);
-  return ret;
 }

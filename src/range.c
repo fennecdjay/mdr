@@ -9,10 +9,9 @@
 #include "mdr.h"
 
 static long str_lines(char *str) {
-  long count = 0;
-  while((str = strchr(str, '\n')))
-    ++count;
-  return count;
+  struct LineCounter lc = { .str=str };
+  linecounter_run(&lc, LONG_MAX);
+  return lc.count;
 }
 
 struct Range actual_range(char *str, const struct Range *src) {
@@ -21,28 +20,24 @@ struct Range actual_range(char *str, const struct Range *src) {
   long lines = str_lines(str);
   struct Range range = { .ini=0, .end=0 };
   range.ini = src->ini >= 0 ? src->ini : lines + src->ini;
+  if(range.ini < 0)
+    range.ini = 0;
   range.end = src->end >= 0 ? src->end : lines + src->end;
+  if(range.end < 0)
+    range.end = 0;
   return range;
 }
 
 static void _string_append_range(struct MdrString *base, struct RangeIncluder *sr) {
   char *str = sr->str->str;
   sr->range = actual_range(base->str, &sr->range);
-  unsigned int count = 0;
-  while(str != (char*)1 && ++count < sr->range.ini && (str = strchr(str, '\n') + 1));
-  if(str == (char*)1)
-    return;
-  const char *src = str + 1;
-  size_t sz = 0;
-  while(*str && count <= sr->range.end) {
-    ++str;
-    ++sz;
-    if(*str == '\n')
-      count++;
-  }
-  struct MdrString *new = new_string(src, sz);
-  string_append(base, new);
-  free_string(new);
+  struct LineCounter lc = { .str=str };
+  linecounter_run(&lc, sr->range.ini - 1);
+  size_t sz = lc.sz;
+  lc.sz = 0;
+  linecounter_run(&lc, sr->range.end + 1);
+  struct MdrString new =  { .str=str + sz, .sz=lc.sz };
+  string_append(base, &new);
 }
 
 void string_append_range(struct MdrString *base, struct RangeIncluder *sr) {
