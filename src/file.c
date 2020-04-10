@@ -1,18 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <limits.h>
 #include "container.h"
 #include "mdr_string.h"
 #include "range.h"
 #include "mdr.h"
-#include "line_counter.h"
 
 struct File {
+  struct MdrString *curr;
   struct Know *know;
   struct Map_ *done;
-  struct MdrString *curr;
-  const char *name;
 };
 
 static enum mdr_status file_str(struct File *file, struct Ast *ast) {
@@ -65,7 +62,7 @@ enum mdr_status file(struct Mdr *mdr) {
   enum mdr_status ret = mdr_ok;
   for(vtype i = 0; ret == mdr_ok && i < map_size(&mdr->file); ++i) {
     const char *name = (char*)VKEY(&mdr->file, i);
-    struct File file = { .know=&mdr->know, .name=name, .curr=new_string("", 0) };
+    struct File file = { .know=&mdr->know, .curr=new_string("", 0) };
     const Vector v = (Vector)map_at(&mdr->file, i);
     for(vtype j = 0; ret == mdr_ok && j < vector_size(v); ++j) {
       struct Ast *ast = (struct Ast*)vector_at(v, j);
