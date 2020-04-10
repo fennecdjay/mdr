@@ -25,12 +25,12 @@ static int snip_exists(struct Snip *snip, char *name) {
 }
 
 static enum mdr_status snip_str(struct Snip *snip, struct Ast *ast) {
-  string_append(snip->str, ast->str);
+  string_append(snip->str, ast->info.str);
   return mdr_ok;
 }
 
 static int snip_done(struct Snip * snip, struct Ast *ast) {
-  struct MdrString *str = (struct MdrString*)map_get(&snip->know->curr, ast->str->str);
+  struct MdrString *str = (struct MdrString*)map_get(&snip->know->curr, ast->info.str->str);
   if(!str)
     return 0;
   string_append(snip->str, str);
@@ -40,29 +40,29 @@ static int snip_done(struct Snip * snip, struct Ast *ast) {
 static struct MdrString* include_string(struct Snip *snip, struct Ast *ast) {
   if(snip_done(snip, ast))
     return (struct MdrString*)mdr_ok;
-  const Vector v = (Vector)map_get(snip->known, ast->str->str);
+  const Vector v = (Vector)map_get(snip->known, ast->info.str->str);
   if(v)
-    return expand(snip, ast->str->str, v);
-  (void)mdr_fail("missing snippet '%s'\n", ast->str->str);
+    return expand(snip, ast->info.str->str, v);
+  (void)mdr_fail("missing snippet '%s'\n", ast->info.str->str);
   return NULL;
 }
 
 static enum mdr_status snip_inc(struct Snip *snip, struct Ast *ast) {
-  if(snip_exists(snip, ast->str->str))
-    return mdr_fail("recursive snippet '%s'\n", ast->str->str);
-  struct MdrString *str = !ast->dot ?
-    include_string(snip, ast) : filename2str(ast->str->str);
+  if(snip_exists(snip, ast->info.str->str))
+    return mdr_fail("recursive snippet '%s'\n", ast->info.str->str);
+  struct MdrString *str = !ast->info.dot ?
+    include_string(snip, ast) : filename2str(ast->info.str->str);
   if(!str)
     return mdr_err;
   if(str == (struct MdrString*)mdr_ok)
     return mdr_ok;
-  if(!ast->range.ini)
+  if(!ast->info.range.ini)
     string_append(snip->str, str);
   else {
-    struct RangeIncluder range = { .str=str, .range=ast->range };
+    struct RangeIncluder range = { .str=str, .range=ast->info.range };
     string_append_range(snip->str, &range);
   }
-  if(ast->dot)
+  if(ast->info.dot)
     free_string(str);
   return mdr_ok;
 }
@@ -71,7 +71,7 @@ static enum mdr_status snip_cmd(struct Snip * snip, struct Ast *ast) {
 #ifdef __AFL_HAVE_MANUAL_CONTROL
 return mdr_ok;
 #endif
-  struct MdrString *str = cmd(ast->str->str);
+  struct MdrString *str = cmd(ast->info.str->str);
   if(!str)
     return mdr_err;
   string_append(snip->str, str);
@@ -113,10 +113,12 @@ static struct MdrString* expand(struct Snip* base, const char *name, const Vecto
       return NULL;
     }
     string_append(str, curr);
+
     if(str->sz && str->str[str->sz - 1] == '\n') {
       trim(str->str);
       --str->sz;
     }
+
     free_string(curr);
   }
   map_set(&base->know->curr, (vtype)name, (vtype)str);

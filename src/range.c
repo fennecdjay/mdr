@@ -53,7 +53,7 @@ struct MdrString* excluder_ini(struct RangeExcluder *ex, const struct Range *ran
   struct LineCounter lc = { .str=ex->src->str };
   linecounter_run(&lc, r.ini - 1);
   struct MdrString *ini = new_string(ex->src->str, lc.sz);
-  linecounter_run(&lc, r.end - 1);
+  linecounter_run(&lc, r.end);
   const long sz = lc.sz;
   lc.count = lc.sz = 0;
   linecounter_run(&lc, LONG_MAX);

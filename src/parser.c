@@ -11,7 +11,7 @@ struct Parser {
   struct Lexer   *lex;
   Map snip;
   Map file;
-  struct Ast *sec; // ???
+  struct Ast *sec;
   struct Ast *ast;
   int blk;
 };
@@ -46,55 +46,36 @@ static struct Ast* parse(struct Parser*);
 
 static enum mdr_status ast_str(struct Parser *parser) {
   struct Ast *ast = new_ast(parser, mdr_str);
-  ast->str = parser->lex->tok;
-  parser->lex->tok = NULL;
+  ast->info = lex_info(parser->lex);
   return mdr_str;
 }
 
 static enum mdr_status ast_cmd(struct Parser *parser) {
   struct Ast *ast = new_ast(parser, mdr_cmd);
-  ast->str = parser->lex->tok;
-  ast->dot = parser->lex->dot;
-  parser->lex->tok = NULL;
-  parser->lex->dot = 0;
+  ast->info = lex_info(parser->lex);
   return mdr_cmd;
 }
 
 static enum mdr_status ast_blk(struct Parser *parser) {
   if(parser->blk)
     return mdr_end;
-  struct MdrString *str = parser->lex->tok;
-  struct Range e = parser->lex->rng;
-  const int dot = parser->lex->dot;
+  struct AstInfo info = lex_info(parser->lex);
   struct Parser new_parser = { .lex=parser->lex, .blk=1, .snip=parser->snip, .file=parser->file };
   struct Ast *section = parse(&new_parser);
   if(!section) {
-    free_string(str);
+    free_string(info.str);
     return mdr_err;
   }
   struct Ast *ast = new_ast(parser, mdr_blk);
-  ast->str = str;
-  ast->dot = dot;
+  ast->info = info;
   ast->ast = section;
-  ast->range = e;
-  known_set(dot ? parser->file : parser->snip, str->str, ast);
+  known_set(info.dot ? parser->file : parser->snip, info.str->str, ast);
   return mdr_blk;
 }
 
 static enum mdr_status ast_inc(struct Parser *parser) {
   struct Ast *section = new_ast(parser, mdr_inc);
-  section->str = parser->lex->tok;
-  parser->lex->tok = NULL;
-  section->dot = parser->lex->dot;
-  parser->lex->dot = 0; // what about idx ?
-  section->range = parser->lex->rng;
-  parser->lex->rng.ini = parser->lex->rng.end = 0;
-  if(*parser->lex->str != ']')
-    return mdr_err; // msg
-  ++parser->lex->str;
-  if(*parser->lex->str != ']')
-    return mdr_err; // msg
-  ++parser->lex->str;
+  section->info = lex_info(parser->lex);
   return mdr_inc;
 }
 
@@ -116,13 +97,12 @@ static const new_ast_fn create_ast[] = {
 };
 
 static enum mdr_status _parse(struct Parser *parser) {
-  parser->lex->dot = 0;
   enum mdr_status type = tokenize(parser->lex);
   return create_ast[type](parser);
 }
 
 void free_ast(struct Ast *ast) {
-  free_string(ast->str);
+  free_string(ast->info.str);
   if(ast->next)
     free_ast(ast->next);
   if(ast->ast)

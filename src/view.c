@@ -10,13 +10,13 @@ struct View {
   struct Know *know;
   Map file;
   struct MdrString *curr;
-  enum mdr_status code;
+  int blk;
 };
 
 static enum mdr_status actual_view_ast(struct View*, struct Ast*);
 
 static enum mdr_status view_str(struct View *view, struct Ast *ast) {
-  string_append(view->curr, ast->str);
+  string_append(view->curr, ast->info.str);
   return mdr_ok;
 }
 
@@ -61,13 +61,13 @@ static enum mdr_status view_blk(struct View *view, struct Ast *ast) {
     struct MdrString tmp = { .str="``` ", .sz=4 };
     string_append(view->curr, &tmp);
   }
-  string_append(view->curr, ast->str);
-  range_print(&ast->range, view->curr);// inverse arg order
+  string_append(view->curr, ast->info.str);
+  range_print(&ast->info.range, view->curr);// inverse arg order
   {
     struct MdrString tmp = { .str="\n", .sz=1 };
     string_append(view->curr, &tmp);
   }
-  struct View new = { .know=view->know, .curr=view->curr, .code=1 };
+  struct View new = { .know=view->know, .curr=view->curr, .blk=1 };
   const enum mdr_status ret = actual_view_ast(&new, ast->ast);
   {
     struct MdrString tmp = { .str="```", .sz=3 };
@@ -86,43 +86,43 @@ static struct MdrString* file_get(struct View *view, struct MdrString *str) {
 }
 
 static enum mdr_status view_inc(struct View *view, struct Ast *ast) {
-  if(view->code) {
+  if(view->blk) {
   {
     struct MdrString tmp = { .str="@[[ ", .sz=4 };
     string_append(view->curr, &tmp);
   }
-  string_append(view->curr, ast->str);
-  range_print(&ast->range, view->curr);
+  string_append(view->curr, ast->info.str);
+  range_print(&ast->info.range, view->curr);
   {
     struct MdrString tmp = { .str=" ]]", .sz=3 };
     string_append(view->curr, &tmp);
   }
     return mdr_ok;
   }
-  struct MdrString *str = !ast->dot ? (struct MdrString*)snippet_get(view->know, ast->str->str) :
-    file_get(view, ast->str);
+  struct MdrString *str = !ast->info.dot ? (struct MdrString*)snippet_get(view->know, ast->info.str->str) :
+    file_get(view, ast->info.str);
   if(!str)
     return mdr_err;
-  struct RangeIncluder sr = { .str=str, .range=ast->range };
+  struct RangeIncluder sr = { .str=str, .range=ast->info.range };
   string_append_range(view->curr, &sr);
   return mdr_ok;
 }
 
 static enum mdr_status view_cmd(struct View *view, struct Ast *ast) {
-  struct MdrString *str = cmd(ast->str->str);
+  struct MdrString *str = cmd(ast->info.str->str);
   if(!str)
     return mdr_err;
-  if(!ast->dot) {
+  if(!ast->info.dot) {
     struct MdrString tmp0 = { .str="<span class=\"MdrCmdPre\">", .sz=24 };
     string_append(view->curr, &tmp0);
-    string_append(view->curr, ast->str);
+    string_append(view->curr, ast->info.str);
     struct MdrString tmp1 = { .str="</span>\n", .sz=8 };
     string_append(view->curr, &tmp1);
     struct MdrString tmp2 = { .str="<p class=\"MdrCmd\">\n", .sz=19 };
     string_append(view->curr, &tmp2);
   }
   string_append(view->curr, str);
-  if(!ast->dot) {
+  if(!ast->info.dot) {
     struct MdrString tmp = { .str="</p>\n", .sz=5 };
     string_append(view->curr, &tmp);
   }

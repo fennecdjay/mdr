@@ -15,12 +15,16 @@ enum mdr_status {
   mdr_err
 };
 
-struct Ast {
+struct AstInfo {
   struct MdrString *str;
-  struct Ast *ast;
-  struct Ast *next;
   struct Range range;
   int dot;
+};
+
+struct Ast {
+  struct AstInfo info;
+  struct Ast *ast;
+  struct Ast *next;
   enum mdr_status type;
 };
 
