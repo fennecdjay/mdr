@@ -5,6 +5,8 @@
 #include "container.h"
 #include "mdr_string.h"
 #include "range.h"
+#include "ast.h"
+#include "know.h"
 #include "line_counter.h"
 #include "mdr.h"
 

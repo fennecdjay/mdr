@@ -4,6 +4,8 @@
 #include "container.h"
 #include "mdr_string.h"
 #include "range.h"
+#include "ast.h"
+#include "know.h"
 #include "mdr.h"
 
 struct Ast* prepare(struct Mdr *mdr, char *filename) {
@@ -39,6 +41,7 @@ static void _fill_global(Map map, char *str) {
   vector_init(&v);
   map_init(&mdr.snip);
   map_init(&mdr.file);
+  map_init(&mdr.know.file_done);
   while(str) {
     char *old = str;
     if((str = strchr(++str, ':'))) {
@@ -50,10 +53,9 @@ static void _fill_global(Map map, char *str) {
       vector_add(&v, (vtype)ast);
   }
   snip(&mdr);
-  for(vtype i = 0; i < map_size(map); ++i)
-     VKEY(map, i) = (vtype)strdup((char*)VKEY(map, i));
   map_release_vector(&mdr.file);
   map_release_vector(&mdr.snip);
+  map_release_string(&mdr.know.file_done);
   for(vtype i = 0; i < vector_size(&v); ++i)
     free_ast((struct Ast*)vector_at(&v, i));
   vector_release(&v);

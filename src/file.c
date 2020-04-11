@@ -4,6 +4,8 @@
 #include "container.h"
 #include "mdr_string.h"
 #include "range.h"
+#include "ast.h"
+#include "know.h"
 #include "mdr.h"
 
 struct File {
@@ -18,9 +20,7 @@ static enum mdr_status file_str(struct File *file, struct Ast *ast) {
 }
 
 static enum mdr_status file_inc(struct File *file, struct Ast *ast) {
-// misses files.
-// use know_get()
-  struct MdrString *str = (struct MdrString*)snippet_get(file->know, ast->info.str->str);// know_done
+  struct MdrString *str = know_get(file->know, ast);
   if(!str)
     return mdr_err;
   struct RangeIncluder rs = { .str=str, .range=ast->info.range };
@@ -69,7 +69,7 @@ enum mdr_status file(struct Mdr *mdr) {
       ret = actual_file_ast(&file, ast);
     }
     if(ret == mdr_ok)
-      map_set(&mdr->file_done, (vtype)name, (vtype)file.curr);
+      file_set(&mdr->know, name, file.curr);
     else
       free_string(file.curr);
   }

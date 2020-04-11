@@ -4,12 +4,13 @@
 #include "container.h"
 #include "mdr_string.h"
 #include "range.h"
+#include "ast.h"
+#include "know.h"
 #include "mdr.h"
 
 struct View {
-  struct Know *know;
-  Map file;
   struct MdrString *curr;
+  struct Know *know;
   int blk;
 };
 
@@ -76,15 +77,6 @@ static enum mdr_status view_blk(struct View *view, struct Ast *ast) {
   return ret;
 }
 
-static struct MdrString* file_get(struct View *view, struct MdrString *str) {
-  struct MdrString *exists = (struct MdrString*)map_get(view->file, str->str);
-  if(exists)
-    return exists;
-  struct MdrString *ret = filename2str(str->str);
-  map_set(view->file, (vtype)str->str, (vtype)ret);
-  return ret;
-}
-
 static enum mdr_status view_inc(struct View *view, struct Ast *ast) {
   if(view->blk) {
   {
@@ -99,8 +91,7 @@ static enum mdr_status view_inc(struct View *view, struct Ast *ast) {
   }
     return mdr_ok;
   }
-  struct MdrString *str = !ast->info.dot ? (struct MdrString*)snippet_get(view->know, ast->info.str->str) :
-    file_get(view, ast->info.str);
+  struct MdrString *str = know_get(view->know, ast);
   if(!str)
     return mdr_err;
   struct RangeIncluder sr = { .str=str, .range=ast->info.range };
@@ -146,10 +137,10 @@ static enum mdr_status actual_view_ast(struct View *view, struct Ast *ast) {
 }
 
 enum mdr_status view_ast(struct Mdr *mdr, struct Ast *ast) {
-  struct View view = { .know=&mdr->know, .file=&mdr->file_done, .curr=new_string("", 0) };
+  struct View view = { .know=&mdr->know, .curr=new_string("", 0) };
   if(actual_view_ast(&view, ast) == mdr_ok) {
     trim(mdr->name);
-    map_set(&mdr->file_done, (vtype)mdr->name, (vtype)view.curr);
+    file_set(&mdr->know, mdr->name, view.curr);
     return mdr_ok;
   }
   free_string(view.curr);

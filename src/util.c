@@ -6,6 +6,8 @@
 #include "container.h"
 #include "mdr_string.h"
 #include "range.h"
+#include "ast.h"
+#include "know.h"
 #include "mdr.h"
 
 static struct MdrString* file2str(FILE *f) {
@@ -47,7 +49,8 @@ int cmd_file(FILE *file, const char *str) {
   struct MdrString *ret = cmd(str);
   if(!ret)
     return mdr_err;
-  fprintf(file, "%s", ret->str);
+//  fprintf(file, "%s", ret->str);
+  fwrite(ret->str, ret->sz, 1, file);
   free_string(ret);
   return mdr_ok;
 }
@@ -78,12 +81,4 @@ FILE* mdr_open_write(const char *str) {
     return file;
   mdr_fail("can't open '%s' for writing\n", str);
   return NULL;
-}
-
-vtype snippet_get(struct Know *know, const char *str) {
-  const vtype ret = map_get(&know->curr, str) ?: map_get(know->global, str);
-  if(ret)
-    return ret;
-  (void)mdr_fail("can't find '%s' snippet\n", str);
-  return 0;
 }

@@ -4,41 +4,11 @@
 #define fclose(a)
 #endif
 
-enum mdr_status {
-  mdr_str,
-  mdr_inc,
-  mdr_cmd,
-  mdr_blk,
-  mdr_end,
-  mdr_eof,
-  mdr_ok,
-  mdr_err
-};
-
-struct AstInfo {
-  struct MdrString *str;
-  struct Range range;
-  int dot;
-};
-
-struct Ast {
-  struct AstInfo info;
-  struct Ast *ast;
-  struct Ast *next;
-  enum mdr_status type;
-};
-
 void free_ast(struct Ast*);
-
-struct Know {
-  struct Map_ curr;
-  Map         global;
-};
 
 struct Mdr {
   struct Map_ snip;
   struct Map_ file;
-  struct Map_ file_done;
   struct Know know;
   const char *name;
 };
@@ -54,7 +24,6 @@ struct Ast* mdr_parse(struct Mdr *, char *const);
 struct MdrString* filename2str(const char*);
 struct MdrString* cmd(const char*);
 int   cmd_file(FILE *file, const char *str);
-vtype snippet_get(struct Know*, const char*);
 static inline void trimsz(char *str, size_t sz) {
   if(sz)
     str[sz - 1] = '\0';

@@ -4,13 +4,15 @@
 #include "container.h"
 #include "mdr_string.h"
 #include "range.h"
+#include "ast.h"
+#include "know.h"
 #include "mdr.h"
 
 struct Snip {
+  struct MdrString *str;
   Map known;
   struct Know *know;
   Vector vec;
-  struct MdrString *str;
 };
 
 static enum mdr_status actual_snip_ast(struct Snip * snip, struct Ast *ast);
@@ -30,7 +32,7 @@ static enum mdr_status snip_str(struct Snip *snip, struct Ast *ast) {
 }
 
 static int snip_done(struct Snip * snip, struct Ast *ast) {
-  struct MdrString *str = (struct MdrString*)map_get(&snip->know->curr, ast->info.str->str);
+  struct MdrString *str = snippet_find(snip->know, ast->info.str);
   if(!str)
     return 0;
   string_append(snip->str, str);
@@ -47,11 +49,16 @@ static struct MdrString* include_string(struct Snip *snip, struct Ast *ast) {
   return NULL;
 }
 
+
+static struct MdrString* _snip_get(struct Snip *snip, struct Ast *ast) {
+  return !ast->info.dot ?
+      include_string(snip, ast) : filename2str(ast->info.str->str);
+}
+
 static enum mdr_status snip_inc(struct Snip *snip, struct Ast *ast) {
   if(snip_exists(snip, ast->info.str->str))
     return mdr_fail("recursive snippet '%s'\n", ast->info.str->str);
-  struct MdrString *str = !ast->info.dot ?
-    include_string(snip, ast) : filename2str(ast->info.str->str);
+  struct MdrString *str = _snip_get(snip, ast);
   if(!str)
     return mdr_err;
   if(str == (struct MdrString*)mdr_ok)
@@ -62,6 +69,7 @@ static enum mdr_status snip_inc(struct Snip *snip, struct Ast *ast) {
     struct RangeIncluder range = { .str=str, .range=ast->info.range };
     string_append_range(snip->str, &range);
   }
+// add to file_done ?
   if(ast->info.dot)
     free_string(str);
   return mdr_ok;
@@ -113,15 +121,13 @@ static struct MdrString* expand(struct Snip* base, const char *name, const Vecto
       return NULL;
     }
     string_append(str, curr);
-
     if(str->sz && str->str[str->sz - 1] == '\n') {
       trim(str->str);
       --str->sz;
     }
-
     free_string(curr);
   }
-  map_set(&base->know->curr, (vtype)name, (vtype)str);
+  snippet_set(base->know, name, str);
   return str;
 }
 

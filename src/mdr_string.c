@@ -4,6 +4,8 @@
 #include "container.h"
 #include "mdr_string.h"
 #include "range.h"
+#include "ast.h"
+#include "know.h"
 #include "mdr.h"
 
 struct MdrString* new_string(const char *str, const size_t sz) {
