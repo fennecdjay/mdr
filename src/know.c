@@ -7,6 +7,7 @@
 #include "ast.h"
 #include "know.h"
 #include "mdr.h"
+#include "io.h"
 
 struct MdrString* snippet_find(struct Know *know, const struct MdrString *str) {
   const char *s = str->str;

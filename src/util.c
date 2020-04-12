@@ -9,6 +9,7 @@
 #include "ast.h"
 #include "know.h"
 #include "mdr.h"
+#include "io.h"
 
 static struct MdrString* file2str(FILE *f) {
   char line[128];
@@ -53,18 +54,6 @@ int cmd_file(FILE *file, const char *str) {
   fwrite(ret->str, ret->sz, 1, file);
   free_string(ret);
   return mdr_ok;
-}
-
-enum mdr_status mdr_fail(const char* fmt, ...) {
-#ifdef __AFL_HAVE_MANUAL_CONTROL
-  return mdr_err;
-#endif
-  fprintf(stderr, "\033[31mMDR\033[0m: ");
-  va_list arg;
-  va_start(arg, fmt);
-  vfprintf(stderr, fmt, arg);
-  va_end(arg);
-  return mdr_err;
 }
 
 FILE* mdr_open_read(const char *str) {

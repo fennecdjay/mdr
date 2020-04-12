@@ -7,6 +7,7 @@
 #include "ast.h"
 #include "know.h"
 #include "mdr.h"
+#include "io.h"
 
 struct Snip {
   struct MdrString *str;

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 #include "container.h"
 #include "mdr_string.h"
 #include "range.h"
@@ -8,6 +9,7 @@
 #include "know.h"
 #include "mdr.h"
 #include "viewopt.h"
+#include "io.h"
 
 void mdr_init(struct Mdr *mdr) {
   map_init(&mdr->snip);
@@ -36,4 +38,17 @@ void mdr_run(struct Mdr *mdr, struct Ast *ast) {
       fclose(f);
     }
   }
+}
+
+
+enum mdr_status mdr_fail(const char* fmt, ...) {
+#ifdef __AFL_HAVE_MANUAL_CONTROL
+  return mdr_err;
+#endif
+  fprintf(stderr, "\033[31mMDR\033[0m: ");
+  va_list arg;
+  va_start(arg, fmt);
+  vfprintf(stderr, fmt, arg);
+  va_end(arg);
+  return mdr_err;
 }

@@ -8,6 +8,7 @@
 #include "know.h"
 #include "mdr.h"
 #include "viewopt.h"
+#include "io.h"
 
 struct View {
   struct MdrString *curr;

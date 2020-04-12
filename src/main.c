@@ -8,6 +8,7 @@
 #include "know.h"
 #include "mdr.h"
 #include "viewopt.h"
+#include "io.h"
 
 struct Ast* prepare(struct Mdr *mdr, char *filename) {
   struct MdrString *str= filename2str(filename);
