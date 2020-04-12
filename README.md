@@ -22,10 +22,10 @@ let's write our first litterate progam.
 
   > hello_world.c
 ``` hello_world.c
-@[[ Includes ]]
+
 
 int main(int argc, char** argv) {
-  @[[ Print ]]
+  
 }
 ```
 

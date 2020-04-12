@@ -129,7 +129,7 @@ enum mdr_status view_ast(struct Mdr *mdr, struct Ast *ast) {
     const size_t sz = strlen(mdr->name);
     char c[sz];
     memcpy(c, mdr->name, sz - 1);
-    c[sz] = '\0';
+    c[sz - 1] = '\0';
     file_set(&mdr->know, c, view.curr);
     return mdr_ok;
   }
