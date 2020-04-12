@@ -43,14 +43,6 @@ void file_set(struct Know *know, const char *name, const struct MdrString *str) 
   map_set(&know->file_done, (vtype)strdup(name), (vtype)str);
 }
 
-void map_release_string(Map map) {
-  for(vtype i = 0; i < map_size(map); ++i) {
-    free((char*)VKEY(map, i));
-    free_string((struct MdrString*)VVAL(map, i));
-  }
-  map_release(map);
-}
-
 void know_release(struct Know *know) {
   map_release_string(&know->curr);
   map_release_string(&know->file_done);

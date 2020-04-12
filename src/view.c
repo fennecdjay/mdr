@@ -126,8 +126,11 @@ static enum mdr_status actual_view_ast(struct View *view, struct Ast *ast) {
 enum mdr_status view_ast(struct Mdr *mdr, struct Ast *ast) {
   struct View view = { .know=&mdr->know, .curr=new_string("", 0), .vopt=mdr->vopt };
   if(actual_view_ast(&view, ast) == mdr_ok) {
-    trim(mdr->name);
-    file_set(&mdr->know, mdr->name, view.curr);
+    const size_t sz = strlen(mdr->name);
+    char c[sz];
+    memcpy(c, mdr->name, sz - 1);
+    c[sz] = '\0';
+    file_set(&mdr->know, c, view.curr);
     return mdr_ok;
   }
   free_string(view.curr);

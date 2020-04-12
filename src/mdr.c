@@ -16,14 +16,6 @@ void mdr_init(struct Mdr *mdr) {
   map_init(&mdr->know.curr);
 }
 
-void map_release_vector(const Map map) {
-  for(vtype i = 0; i < map_size(map); ++i) {
-    vector_release((Vector)VVAL(map, i));
-    free((Vector)VVAL(map, i));
-  }
-  map_release(map);
-}
-
 void mdr_release(struct Mdr *mdr) {
   know_release(&mdr->know);
   map_release_vector(&mdr->snip);

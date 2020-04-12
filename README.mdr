@@ -20,35 +20,39 @@ let's write our first litterate progam.
 
 ### Define program structure
 
-@``` hello_world.c
-@[[Includes]]
+  > hello_world.c
+``` hello_world.c
+
 
 int main(int argc, char** argv) {
-  @[[Print]]
+  
 }
-@```
+```
 
 
 ### Add Headers
 As we need the *puts* function, we need **stdio** headers.
 
-@``` Includes .c
+  > Includes
+``` Includes
 #include <stdio.h>
-@```
+```
 
 
 ### Print function
 
-@``` Print .c
+  > Print
+``` Print
 puts("Hello, World!");
-@```
+```
 
 
 
 ### Compile
 let's compile *hello_world.c*.
 
-@exec cc hello_world.c -o hello_world
+  > cc hello_world.c -o hello_world
+
 
 Yes, there should be no output, and that good news.
 
@@ -57,7 +61,11 @@ Yes, there should be no output, and that good news.
 ### Check
 Let's look at hello_world.c
 ```
-@hide cat hello_world.c
+#include <stdio.h>
+
+int main(int argc, char** argv) {
+  puts("Hello, World!");
+}
 ```
 That's the content of the source file we generated (and compiled).
 
@@ -67,14 +75,18 @@ That's the content of the source file we generated (and compiled).
 
 Then we run it
 
-@exec ./hello_world
+  > ./hello_world
+Hello, World!
+
 
 Do we read *Hello World!* ?
 Assuming yes, let's continue.
 
 ### More test
 
-@exec [ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"
+  > [ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"
+OK
+
 
 ## Building
 
@@ -112,4 +124,3 @@ or just copy `mdr` somewhere in your path.
 
 generated from [this file](https://github.com/fennecdjay/mdr/blob/master/README.mdr)
 
-@hide rm hello_world hello_world.c
