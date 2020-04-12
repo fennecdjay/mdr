@@ -20,6 +20,7 @@ let's write our first litterate progam.
 
 ### Define program structure
 
+  > hello_world.c
 ``` hello_world.c
 @[[ Includes ]]
 
@@ -32,6 +33,7 @@ int main(int argc, char** argv) {
 ### Add Headers
 As we need the *puts* function, we need **stdio** headers.
 
+  > Includes
 ``` Includes
 #include <stdio.h>
 ```
@@ -39,6 +41,7 @@ As we need the *puts* function, we need **stdio** headers.
 
 ### Print function
 
+  > Print
 ``` Print
 puts("Hello, World!");
 ```
@@ -48,9 +51,8 @@ puts("Hello, World!");
 ### Compile
 let's compile *hello_world.c*.
 
-<span class="MdrCmdPre">cc hello_world.c -o hello_world</span>
-<p class="MdrCmd">
-</p>
+  > cc hello_world.c -o hello_world
+
 
 Yes, there should be no output, and that good news.
 
@@ -73,26 +75,18 @@ That's the content of the source file we generated (and compiled).
 
 Then we run it
 
-<span class="MdrCmdPre">./hello_world</span>
-<p class="MdrCmd">
+  > ./hello_world
 Hello, World!
-</p>
+
 
 Do we read *Hello World!* ?
 Assuming yes, let's continue.
 
 ### More test
-Let's try it
-```
-[ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"
-```
 
-and the result is
-
-<span class="MdrCmdPre">[ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"</span>
-<p class="MdrCmd">
+  > [ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"
 OK
-</p>
+
 
 ## Building
 

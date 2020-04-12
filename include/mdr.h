@@ -10,6 +10,7 @@ struct Mdr {
   struct Map_ snip;
   struct Map_ file;
   struct Know know;
+  struct ViewOpt *vopt;
   const char *name;
 };
 

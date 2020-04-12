@@ -73,12 +73,6 @@ Do we read *Hello World!* ?
 Assuming yes, let's continue.
 
 ### More test
-Let's try it
-```
-[ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"
-```
-
-and the result is
 
 @exec [ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"
 

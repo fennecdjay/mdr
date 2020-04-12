@@ -7,6 +7,7 @@
 #include "ast.h"
 #include "know.h"
 #include "mdr.h"
+#include "viewopt.h"
 
 struct Ast* prepare(struct Mdr *mdr, char *filename) {
   struct MdrString *str= filename2str(filename);
@@ -73,8 +74,10 @@ int main(int argc, char **argv) {
   struct Map_ global;
   map_init(&global);
   fill_global(&global);
+  struct ViewOpt vopt;
+  viewopt_fill(&vopt);
   for(int i = 1; i < argc; ++i) {
-    struct Mdr mdr = { .name=argv[i], .know = { .global=&global } };
+    struct Mdr mdr = { .name=argv[i], .know = { .global=&global }, .vopt=&vopt };
     struct MdrString *str= filename2str(argv[i]);
     if(str) {
       run(&mdr, str->str);
@@ -86,6 +89,7 @@ int main(int argc, char **argv) {
     free_string((struct MdrString*)VVAL(&global, i));
   }
   map_release(&global);
+  viewopt_release(&vopt);
   return EXIT_SUCCESS;
 }
 
@@ -95,6 +99,8 @@ int main(int argc, char **argv) {
 
 int main(int argc, char **argv) {
   char buf[BUFSIZE];
+  struct ViewOpt vopt;
+  viewopt_fill(&vopt);
   __AFL_INIT();
   struct Map_ global;
   map_init(&global);
@@ -105,6 +111,7 @@ int main(int argc, char **argv) {
     run(&mdr, buf);
   }
   map_release(&global);
+  viewopt_release(&vopt);
   return EXIT_SUCCESS;
 }
 

@@ -7,10 +7,12 @@
 #include "ast.h"
 #include "know.h"
 #include "mdr.h"
+#include "viewopt.h"
 
 struct View {
   struct MdrString *curr;
   struct Know *know;
+  struct ViewOpt *vopt;
   int blk;
 };
 
@@ -58,37 +60,28 @@ static void range_print(struct Range *range, struct MdrString *str) {
 }
 
 static enum mdr_status view_blk(struct View *view, struct Ast *ast) {
-  {
-    struct MdrString tmp = { .str="``` ", .sz=4 };
-    string_append(view->curr, &tmp);
-  }
+  string_append(view->curr, view->vopt->blk_pre);
   string_append(view->curr, ast->info.str);
   range_print(&ast->info.range, view->curr);// inverse arg order
-  {
-    struct MdrString tmp = { .str="\n", .sz=1 };
-    string_append(view->curr, &tmp);
-  }
-  struct View new = { .know=view->know, .curr=view->curr, .blk=1 };
+  string_append(view->curr, view->vopt->blk_ini);
+  string_append(view->curr, ast->info.str);
+  range_print(&ast->info.range, view->curr);// inverse arg order
+  string_append(view->curr, view->vopt->blk_mid);
+  struct View new = { .know=view->know, .curr=view->curr, .blk=1, .vopt=view->vopt };
   const enum mdr_status ret = actual_view_ast(&new, ast->ast);
-  {
-    struct MdrString tmp = { .str="```", .sz=3 };
-    string_append(view->curr, &tmp);
-  }
+  string_append(view->curr, view->vopt->blk_end);
   return ret;
 }
 
+static struct MdrString inc_ini = { .str="@[[ ", .sz = 4 };
+static struct MdrString inc_end = { .str=" ]]", .sz = 3 };
+
 static enum mdr_status view_inc(struct View *view, struct Ast *ast) {
   if(view->blk) {
-  {
-    struct MdrString tmp = { .str="@[[ ", .sz=4 };
-    string_append(view->curr, &tmp);
-  }
-  string_append(view->curr, ast->info.str);
-  range_print(&ast->info.range, view->curr);
-  {
-    struct MdrString tmp = { .str=" ]]", .sz=3 };
-    string_append(view->curr, &tmp);
-  }
+    string_append(view->curr, &inc_ini);
+    string_append(view->curr, ast->info.str);
+    range_print(&ast->info.range, view->curr);
+    string_append(view->curr, &inc_end);
     return mdr_ok;
   }
   struct MdrString *str = know_get(view->know, ast);
@@ -104,19 +97,13 @@ static enum mdr_status view_cmd(struct View *view, struct Ast *ast) {
   if(!str)
     return mdr_err;
   if(!ast->info.dot) {
-    struct MdrString tmp0 = { .str="<span class=\"MdrCmdPre\">", .sz=24 };
-    string_append(view->curr, &tmp0);
+    string_append(view->curr, view->vopt->cmd_ini);
     string_append(view->curr, ast->info.str);
-    struct MdrString tmp1 = { .str="</span>\n", .sz=8 };
-    string_append(view->curr, &tmp1);
-    struct MdrString tmp2 = { .str="<p class=\"MdrCmd\">\n", .sz=19 };
-    string_append(view->curr, &tmp2);
+    string_append(view->curr, view->vopt->cmd_mid);
   }
   string_append(view->curr, str);
-  if(!ast->info.dot) {
-    struct MdrString tmp = { .str="</p>\n", .sz=5 };
-    string_append(view->curr, &tmp);
-  }
+  if(!ast->info.dot)
+    string_append(view->curr, view->vopt->cmd_end);
   free_string(str);
   return mdr_ok;
 }
@@ -137,7 +124,7 @@ static enum mdr_status actual_view_ast(struct View *view, struct Ast *ast) {
 }
 
 enum mdr_status view_ast(struct Mdr *mdr, struct Ast *ast) {
-  struct View view = { .know=&mdr->know, .curr=new_string("", 0) };
+  struct View view = { .know=&mdr->know, .curr=new_string("", 0), .vopt=mdr->vopt };
   if(actual_view_ast(&view, ast) == mdr_ok) {
     trim(mdr->name);
     file_set(&mdr->know, mdr->name, view.curr);

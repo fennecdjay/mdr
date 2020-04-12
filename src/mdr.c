@@ -7,6 +7,7 @@
 #include "ast.h"
 #include "know.h"
 #include "mdr.h"
+#include "viewopt.h"
 
 void mdr_init(struct Mdr *mdr) {
   map_init(&mdr->snip);
