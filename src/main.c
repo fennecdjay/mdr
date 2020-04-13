@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
   while(__AFL_LOOP(1000)) {
     memset(buf, 0, BUFSIZE);
     read(0, buf, BUFSIZE);
-    struct Mdr mdr = { .name="afl", .know={ .global=&global } };
+    struct Mdr mdr = { .name="afl", .know={ .global=&global }, .vopt=&vopt };
     run(&mdr, buf);
   }
   map_release(&global);

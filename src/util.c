@@ -32,6 +32,9 @@ struct MdrString* filename2str(const char* name) {
 }
 
 struct MdrString* cmd(const char *str) {
+#ifdef __AFL_HAVE_MANUAL_CONTROL
+  return new_string("", 0);
+#endif
   FILE *f = popen(str, "r");
   if(!f) {
     mdr_fail("can't exec '%s'\n", str);
@@ -40,20 +43,6 @@ struct MdrString* cmd(const char *str) {
   struct MdrString *ret = file2str(f);
   pclose(f);
   return ret;
-}
-
-int cmd_file(FILE *file, const char *str) {
-#ifdef __AFL_HAVE_MANUAL_CONTROL
-  (void)file;
-  return 1;
-#endif
-  struct MdrString *ret = cmd(str);
-  if(!ret)
-    return mdr_err;
-//  fprintf(file, "%s", ret->str);
-  fwrite(ret->str, ret->sz, 1, file);
-  free_string(ret);
-  return mdr_ok;
 }
 
 FILE* mdr_open_read(const char *str) {

@@ -92,7 +92,7 @@ static enum mdr_status _comment(struct Lexer *lex) {
 }
 
 static char* get_end(char *str) {
-  while(str) {
+  while(*str) {
     if(*str == ':')
       return str;
     if(*str == '\n')

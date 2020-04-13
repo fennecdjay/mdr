@@ -62,6 +62,8 @@ static enum mdr_status ast_blk(struct Parser *parser) {
   if(parser->blk)
     return mdr_end;
   struct AstInfo info = lex_info(parser->lex);
+  if(!info.str)
+    return mdr_fail("missing end block\n");
   struct Parser new_parser = { .lex=parser->lex, .blk=1, .snip=parser->snip, .file=parser->file };
   struct Ast *section = parse(&new_parser);
   if(!section) {
