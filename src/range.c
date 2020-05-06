@@ -31,7 +31,11 @@ struct Range actual_range(char *str, const struct Range *src) {
 }
 
 static void _string_append_range(struct MdrString *base, struct RangeIncluder *sr) {
+  if(!base) // return mdr_err
+    return;
   char *str = sr->str->str;
+  if(!str) // return mdr_err
+    return;
   sr->range = actual_range(base->str, &sr->range);
   struct LineCounter lc = { .str=str };
   linecounter_run(&lc, sr->range.ini - 1);

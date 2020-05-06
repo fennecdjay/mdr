@@ -28,21 +28,24 @@ void mdr_run(struct Mdr *mdr, struct Ast *ast) {
   if(snip(mdr) == mdr_err || file(mdr) == mdr_err)
     return;
   if(view_ast(mdr, ast) == mdr_ok) {
+#ifndef __AFL_COMPILER
     for(vtype i = 0; i < map_size(&mdr->know.file_done); ++i) {
       char* name = (char*)VKEY(&mdr->know.file_done, i);
       FILE *f = mdr_open_write(name);
       if(!f)
         continue;
       struct MdrString *str = (struct MdrString*)VVAL(&mdr->know.file_done, i);
-      fwrite(str->str, str->sz, 1, f);
+      if(str)
+        fwrite(str->str, str->sz, 1, f);
       fclose(f);
     }
+#endif
   }
 }
 
 
 enum mdr_status mdr_fail(const char* fmt, ...) {
-#ifdef __AFL_HAVE_MANUAL_CONTROL
+#ifdef __AFL_COMPILER
   return mdr_err;
 #endif
   fprintf(stderr, "\033[31mMDR\033[0m: ");

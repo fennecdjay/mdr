@@ -32,7 +32,7 @@ struct MdrString* filename2str(const char* name) {
 }
 
 struct MdrString* cmd(const char *str) {
-#ifdef __AFL_HAVE_MANUAL_CONTROL
+#ifdef __AFL_COMPILER
   return new_string("", 0);
 #endif
   FILE *f = popen(str, "r");

@@ -86,7 +86,7 @@ static enum mdr_status view_inc(struct View *view, struct Ast *ast) {
     return mdr_ok;
   }
   struct MdrString *str = know_get(view->know, ast);
-  if(!str)
+  if(!str) // err_msg
     return mdr_err;
   struct RangeIncluder sr = { .str=str, .range=ast->info.range };
   string_append_range(view->curr, &sr);

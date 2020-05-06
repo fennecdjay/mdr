@@ -53,8 +53,12 @@ static enum mdr_status ast_str(struct Parser *parser) {
 }
 
 static enum mdr_status ast_cmd(struct Parser *parser) {
+  struct AstInfo info = lex_info(parser->lex);
+printf("... %p\n", info.str);
+  if(!info.str) // err_msg
+    return mdr_err;
   struct Ast *ast = new_ast(parser, mdr_cmd);
-  ast->info = lex_info(parser->lex);
+  ast->info = info;
   return mdr_cmd;
 }
 
@@ -80,11 +84,15 @@ static enum mdr_status ast_blk(struct Parser *parser) {
 static enum mdr_status ast_inc(struct Parser *parser) {
   struct Ast *section = new_ast(parser, mdr_inc);
   section->info = lex_info(parser->lex);
-  return mdr_inc;
+  return mdr_inc; // err_msg
 }
 
 static enum mdr_status ast_end(struct Parser *parser __attribute__((unused))) {
   return mdr_end;
+}
+
+static enum mdr_status ast_err(struct Parser *parser __attribute__((unused))) {
+  return mdr_err;
 }
 
 typedef enum mdr_status (*new_ast_fn)(struct Parser*);
@@ -97,7 +105,7 @@ static const new_ast_fn create_ast[] = {
   ast_end,
   ast_end,
   ast_end,
-  ast_end
+  ast_err
 };
 
 static enum mdr_status _parse(struct Parser *parser) {

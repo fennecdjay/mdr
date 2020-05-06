@@ -77,7 +77,7 @@ static enum mdr_status snip_inc(struct Snip *snip, struct Ast *ast) {
 }
 
 static enum mdr_status snip_cmd(struct Snip * snip, struct Ast *ast) {
-#ifdef __AFL_HAVE_MANUAL_CONTROL
+#ifdef __AFL_COMPILER
 return mdr_ok;
 #endif
   struct MdrString *str = cmd(ast->info.str->str);

@@ -27,7 +27,8 @@ void string_append(struct MdrString *old, struct MdrString *new) {
     return;
   const size_t len = old->sz + new->sz + 1;
   char *str = realloc(old->str, len);
-  strcpy(str + old->sz, new->str);
+  strncpy(str + old->sz, new->str, new->sz);
   old->sz += new->sz;
+  str[old->sz] = '\0';
   old->str = str;
 }

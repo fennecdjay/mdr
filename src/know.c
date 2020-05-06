@@ -32,7 +32,8 @@ struct MdrString* file_get(struct Know *know, const struct MdrString *str) {
   if(exists)
     return exists;
   struct MdrString *ret = filename2str(s);
-  file_set(know, s, ret);
+  if(ret)
+    file_set(know, s, ret);
   return ret;
 }
 
