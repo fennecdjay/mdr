@@ -130,7 +130,7 @@ static enum mdr_status _inc(struct Lexer *lex) {
 
 static enum mdr_status _blk(struct Lexer *lex) {
   lex->alt = !lex->alt;
-  lex->str += 3;
+  lex->str += 4;
   if(lex->alt) {
     if(!(lex->info.str = snippet_name(lex)))
       return mdr_fail("unstarted block\n");

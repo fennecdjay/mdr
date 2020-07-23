@@ -54,7 +54,6 @@ static enum mdr_status ast_str(struct Parser *parser) {
 
 static enum mdr_status ast_cmd(struct Parser *parser) {
   struct AstInfo info = lex_info(parser->lex);
-printf("... %p\n", info.str);
   if(!info.str) // err_msg
     return mdr_err;
   struct Ast *ast = new_ast(parser, mdr_cmd);
