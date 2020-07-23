@@ -42,8 +42,8 @@ static void do_file(struct Map_ *map) {
 void mdr_run(struct Mdr *mdr, struct Ast *ast) {
   if(snip(mdr) == mdr_err || file(mdr) == mdr_err)
     return;
-  do_file(&mdr->know.file_done);
   view_ast(mdr, ast);
+  do_file(&mdr->know.file_done);
 }
 
 
