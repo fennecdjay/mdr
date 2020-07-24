@@ -76,4 +76,4 @@ limit_test() {
   prlimit -n4 ./mdr tests/exec_view.mdr &>/dev/null
 }
 
-[ $(uname) = "Linux" ] && limit_test
+[ $(uname) = "Linux" ] && limit_test || true
