@@ -24,17 +24,21 @@ void mdr_release(struct Mdr *mdr) {
   map_release_vector(&mdr->file);
 }
 
+void write_file(const char *name, const struct MdrString *text) {
+  FILE *f = mdr_open_write(name);
+  if(!f)
+    return;
+  fwrite(text->str, text->sz, 1, f);
+  fclose(f);
+}
+
 static void do_file(struct Map_ *map) {
 #ifndef __AFL_COMPILER
   for(vtype i = 0; i < map_size(map); ++i) {
     char* name = (char*)VKEY(map, i);
-    FILE *f = mdr_open_write(name);
-    if(!f)
-      continue;
-    struct MdrString *str = (struct MdrString*)VVAL(map, i);
-    if(str)
-      fwrite(str->str, str->sz, 1, f);
-    fclose(f);
+    struct MdrString *text = (struct MdrString*)VVAL(map, i);
+    if(text)
+      write_file(name, text);
   }
 #endif
 }
@@ -42,8 +46,8 @@ static void do_file(struct Map_ *map) {
 void mdr_run(struct Mdr *mdr, struct Ast *ast) {
   if(snip(mdr) == mdr_err || file(mdr) == mdr_err)
     return;
-  view_ast(mdr, ast);
   do_file(&mdr->know.file_done);
+  view_ast(mdr, ast);
 }
 
 

@@ -10,3 +10,4 @@ static inline void trim(char *str) {
 
 FILE* mdr_open_write(const char *str);
 FILE* mdr_open_read(const char *str);
+void write_file(const char *name, const struct MdrString *text);
