@@ -70,9 +70,10 @@ do
 done
 
 limit_test() {
+  which prlimit || return
   prlimit -n4 ./mdr tests/exec_snip.mdr &>/dev/null
   prlimit -n4 ./mdr tests/exec_exec.mdr &>/dev/null
   prlimit -n4 ./mdr tests/exec_view.mdr &>/dev/null
 }
 
-which prlimit >/dev/null && limit_test
+[ $(uname) = "Linux" ] && limit_test
