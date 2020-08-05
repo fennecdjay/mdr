@@ -3,8 +3,8 @@
 ![Linux](https://github.com/fennecdjay/mdr/workflows/Linux/badge.svg)
 ![MacOs](https://github.com/fennecdjay/mdr/workflows/MacOs/badge.svg)
 ![Windows](https://github.com/fennecdjay/mdr/workflows/Windows/badge.svg)
-
-mdr is a **small** (less than **500 C SLOC** :champagne:) *program* and *markup*
+[![Line Count](https://tokei.rs/b1/github/fennecdjay/mdr)](https://github.com/Gwion/mdr)
+mdr is a **small** *program* and *markup*
 designed to facilitate documentation and testing.  
 
 
@@ -22,16 +22,17 @@ let's write our first litterate progam.
 
   > hello_world.c
 ``` hello_world.c
-
+@[[ Includes ]]
 
 int main(int argc, char** argv) {
-  
+  @[[ Print ]]
 }
 ```
 
 
 ### Add Headers
 As we need the *puts* function, we need **stdio** headers.
+
 
   > Includes
 ``` Includes
@@ -54,19 +55,22 @@ let's compile *hello_world.c*.
   > cc hello_world.c -o hello_world
 
 
+
 Yes, there should be no output, and that good news.
 
 
 
 ### Check
 Let's look at hello_world.c
-```
+
+  > cat hello_world.c
 #include <stdio.h>
 
 int main(int argc, char** argv) {
   puts("Hello, World!");
 }
-```
+
+
 That's the content of the source file we generated (and compiled).
 
 
@@ -79,6 +83,7 @@ Then we run it
 Hello, World!
 
 
+
 Do we read *Hello World!* ?
 Assuming yes, let's continue.
 
@@ -86,6 +91,7 @@ Assuming yes, let's continue.
 
   > [ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"
 OK
+
 
 
 ## Building
