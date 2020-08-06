@@ -9,14 +9,14 @@ struct Mdr {
   struct Map_ file;
   struct Know know;
   struct ViewOpt *vopt;
-  const char *name;
+  char *name;
 };
 
 enum mdr_status snip(struct Mdr *mdr);
 enum mdr_status file(struct Mdr *mdr);
 enum mdr_status view_ast(struct Mdr *mdr, struct Ast *ast);
 struct Ast* mdr_parse(struct Mdr *, char *const);
-enum mdr_status mdr_fail(const char *fmt, ...);
+enum mdr_status mdr_fail(const struct Loc *loc, const char *fmt, ...);
 
 // mdr.c
 void mdr_init(struct Mdr*);

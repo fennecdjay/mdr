@@ -15,8 +15,20 @@ struct Parser {
   Map file;
   struct Ast *sec;
   struct Ast *ast;
+  char *filename;
   int blk;
+  uint start;
 };
+
+static inline void set_loc(struct Ast *ast, struct Parser *parser) {
+  ast->loc.start = parser->start;
+  ast->loc.end = parser->lex->line;
+}
+
+static inline void set_locnl(struct Ast *ast, struct Parser *parser) {
+  ast->loc.start = parser->start;
+  ast->loc.end = parser->lex->line - 1;
+}
 
 static void known_set(const Map map, const char *key, struct Ast *ast) {
   const Vector exists = (Vector)map_get(map, key);
@@ -40,6 +52,7 @@ static void parser_add(struct Parser *parser, struct Ast *ast) {
 static struct Ast* new_ast(struct Parser *parser, const enum mdr_status type) {
   struct Ast *ast = calloc(1, sizeof(struct Ast));
   ast->type = type;
+  ast->loc.filename = strdup(parser->filename);
   parser_add(parser, ast);
   return ast;
 }
@@ -49,6 +62,7 @@ static struct Ast* parse(struct Parser*);
 static enum mdr_status ast_str(struct Parser *parser) {
   struct Ast *ast = new_ast(parser, mdr_str);
   ast->info = lex_info(parser->lex);
+  set_loc(ast, parser);
   return mdr_str;
 }
 
@@ -58,6 +72,7 @@ static enum mdr_status ast_cmd(struct Parser *parser) {
     return mdr_err;
   struct Ast *ast = new_ast(parser, mdr_cmd);
   ast->info = info;
+  set_loc(ast, parser);
   return mdr_cmd;
 }
 
@@ -65,9 +80,17 @@ static enum mdr_status ast_blk(struct Parser *parser) {
   if(parser->blk)
     return mdr_end;
   struct AstInfo info = lex_info(parser->lex);
-  if(!info.str)
-    return mdr_fail("missing end block\n");
-  struct Parser new_parser = { .lex=parser->lex, .blk=1, .snip=parser->snip, .file=parser->file };
+  if(!info.str) {
+    struct Loc loc = { .start=parser->start, .end=parser->lex->line };
+    return mdr_fail(&loc, "missing end block\n");
+  }
+  struct Parser new_parser = {
+    .lex=parser->lex,
+    .blk=1,
+    .snip=parser->snip,
+    .file=parser->file,
+    .filename=parser->filename
+  };
   struct Ast *section = parse(&new_parser);
   if(!section) {
     free_string(info.str);
@@ -76,13 +99,15 @@ static enum mdr_status ast_blk(struct Parser *parser) {
   struct Ast *ast = new_ast(parser, mdr_blk);
   ast->info = info;
   ast->ast = section;
+  set_loc(ast, parser);
   known_set(info.dot ? parser->file : parser->snip, info.str->str, ast);
   return mdr_blk;
 }
 
 static enum mdr_status ast_inc(struct Parser *parser) {
-  struct Ast *section = new_ast(parser, mdr_inc);
-  section->info = lex_info(parser->lex);
+  struct Ast *ast = new_ast(parser, mdr_inc);
+  ast->info = lex_info(parser->lex);
+  set_loc(ast, parser);
   return mdr_inc; // err_msg
 }
 
@@ -108,6 +133,7 @@ static const new_ast_fn create_ast[] = {
 };
 
 static enum mdr_status _parse(struct Parser *parser) {
+  parser->start = parser->lex->line;
   enum mdr_status type = tokenize(parser->lex);
   return create_ast[type](parser);
 }
@@ -118,6 +144,7 @@ void free_ast(struct Ast *ast) {
     free_ast(ast->next);
   if(ast->ast)
     free_ast(ast->ast);
+  free(ast->loc.filename);
   free(ast);
 }
 
@@ -141,7 +168,12 @@ static struct Ast* parse(struct Parser *parser) {
 }
 
 struct Ast* mdr_parse(struct Mdr *mdr, char *const str) {
-  struct Lexer lex = { .str = str };
-  struct Parser parser = { .lex=&lex, .snip=&mdr->snip, .file=&mdr->file };
+  struct Lexer lex = { .str = str, .line=1, .filename=mdr->name };
+  struct Parser parser = {
+    .lex=&lex,
+    .snip=&mdr->snip,
+    .file=&mdr->file,
+    .filename=mdr->name
+  };
   return parse(&parser);
 }

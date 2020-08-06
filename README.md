@@ -3,7 +3,7 @@
 ![Linux](https://github.com/fennecdjay/mdr/workflows/Linux/badge.svg)
 ![MacOs](https://github.com/fennecdjay/mdr/workflows/MacOs/badge.svg)
 ![Windows](https://github.com/fennecdjay/mdr/workflows/Windows/badge.svg)
-[![](https://tokei.rs/b1/github/fennecdjay/mdr)](https://github.com/Gwion/mdr)  
+[![Line Count](https://tokei.rs/b1/github/fennecdjay/mdr)](https://github.com/Gwion/mdr)  
 
 
 

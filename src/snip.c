@@ -46,19 +46,19 @@ static struct MdrString* include_string(struct Snip *snip, struct Ast *ast) {
   const Vector v = (Vector)map_get(snip->known, ast->info.str->str);
   if(v)
     return expand(snip, ast->info.str->str, v);
-  (void)mdr_fail("missing snippet '%s'\n", ast->info.str->str);
+  (void)mdr_fail(&ast->loc, "missing snippet '%s'\n", ast->info.str->str);
   return NULL;
 }
 
 
 static struct MdrString* _snip_get(struct Snip *snip, struct Ast *ast) {
   return !ast->info.dot ?
-      include_string(snip, ast) : filename2str(ast->info.str->str);
+      include_string(snip, ast) : filename2str(ast->info.str->str, &ast->loc);
 }
 
 static enum mdr_status snip_inc(struct Snip *snip, struct Ast *ast) {
   if(snip_exists(snip, ast->info.str->str))
-    return mdr_fail("recursive snippet '%s'\n", ast->info.str->str);
+    return mdr_fail(&ast->loc, "recursive snippet '%s'\n", ast->info.str->str);
   struct MdrString *str = _snip_get(snip, ast);
   if(!str)
     return mdr_err;
@@ -80,7 +80,7 @@ static enum mdr_status snip_cmd(struct Snip * snip, struct Ast *ast) {
 #ifdef __AFL_COMPILER
 return mdr_ok;
 #endif
-  struct MdrString *str = cmd(ast->info.str->str);
+  struct MdrString *str = cmd(ast);
   if(!str)
     return mdr_err;
   string_append(snip->str, str);

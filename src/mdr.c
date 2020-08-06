@@ -24,8 +24,8 @@ void mdr_release(struct Mdr *mdr) {
   map_release_vector(&mdr->file);
 }
 
-void write_file(const char *name, const struct MdrString *text) {
-  FILE *f = mdr_open_write(name);
+void write_file(const char *str, const struct Loc *loc, const struct MdrString *text) {
+  FILE *f = mdr_open_write(str, loc);
   if(!f)
     return;
   fwrite(text->str, text->sz, 1, f);
@@ -35,10 +35,12 @@ void write_file(const char *name, const struct MdrString *text) {
 static void do_file(struct Map_ *map) {
 #ifndef __AFL_COMPILER
   for(vtype i = 0; i < map_size(map); ++i) {
-    char* name = (char*)VKEY(map, i);
     struct MdrString *text = (struct MdrString*)VVAL(map, i);
-    if(text)
-      write_file(name, text);
+    if(text) {
+      char *ptr = (char*)VKEY(map, i),
+           *str = ptr + (sizeof (struct Loc));
+      write_file(str, (struct Loc*)ptr, text);
+    }
   }
 #endif
 }
@@ -50,12 +52,11 @@ void mdr_run(struct Mdr *mdr, struct Ast *ast) {
   view_ast(mdr, ast);
 }
 
-
-enum mdr_status mdr_fail(const char* fmt, ...) {
+enum mdr_status mdr_fail(const struct Loc *loc, const char* fmt, ...) {
 #ifdef __AFL_COMPILER
   return mdr_err;
 #endif
-  fprintf(stderr, "\033[31mMDR\033[0m: ");
+  fprintf(stderr, "\033[31mMDR\033[0m:%s:%u-%u\n", loc->filename, loc->start, loc->end);
   va_list arg;
   va_start(arg, fmt);
   vfprintf(stderr, fmt, arg);

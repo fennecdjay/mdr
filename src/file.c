@@ -30,7 +30,7 @@ static enum mdr_status file_inc(struct File *file, struct Ast *ast) {
 }
 
 static enum mdr_status file_cmd(struct File *file, struct Ast *ast) {
-  struct MdrString *str = cmd(ast->info.str->str);
+  struct MdrString *str = cmd(ast);
   if(!str)
     return mdr_err;
   string_append(file->curr, str);
@@ -62,7 +62,6 @@ static enum mdr_status actual_file_ast(struct File *file, struct Ast *src) {
 enum mdr_status file(struct Mdr *mdr) {
   enum mdr_status ret = mdr_ok;
   for(vtype i = 0; ret == mdr_ok && i < map_size(&mdr->file); ++i) {
-    const char *name = (char*)VKEY(&mdr->file, i);
     struct File file = { .know=&mdr->know, .curr=new_string("", 0) };
     const Vector v = (Vector)map_at(&mdr->file, i);
     for(vtype j = 0; ret == mdr_ok && j < vector_size(v); ++j) {
@@ -70,7 +69,7 @@ enum mdr_status file(struct Mdr *mdr) {
       ret = actual_file_ast(&file, ast);
     }
     if(ret == mdr_ok)
-      file_set(&mdr->know, name, file.curr);
+      file_set(&mdr->know, (struct Ast*)vector_at((Vector)VVAL(&mdr->file, 0),0) , file.curr);
     else
       free_string(file.curr);
   }

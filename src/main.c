@@ -10,8 +10,14 @@
 #include "viewopt.h"
 #include "io.h"
 
+static struct MdrString* mdr_open(char *filename) {
+  struct Loc loc = { .filename="[global]" };
+  return filename2str(filename, &loc );
+}
+
 struct Ast* prepare(struct Mdr *mdr, char *filename) {
-  struct MdrString *str= filename2str(filename);
+  mdr->name = "global";
+  struct MdrString *str= mdr_open(filename);
   if(!str)
     return NULL;
   struct Ast *ast = mdr_parse(mdr, str->str);
@@ -79,7 +85,7 @@ int main(int argc, char **argv) {
   viewopt_fill(&vopt);
   for(int i = 1; i < argc; ++i) {
     struct Mdr mdr = { .name=argv[i], .know = { .global=&global }, .vopt=&vopt };
-    struct MdrString *str= filename2str(argv[i]);
+    struct MdrString *str= mdr_open(argv[i]);
     if(str) {
       run(&mdr, str->str);
       free_string(str);

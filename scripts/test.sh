@@ -69,11 +69,11 @@ do
   file_test "$index" "$file"
 done
 
-limit_test() {
-  which prlimit || return
-  prlimit -n4 ./mdr tests/exec_snip.mdr &>/dev/null
-  prlimit -n4 ./mdr tests/exec_exec.mdr &>/dev/null
-  prlimit -n4 ./mdr tests/exec_view.mdr &>/dev/null
-}
+#limit_test() {
+#  which prlimit || return
+#  prlimit -n4 ./mdr tests/exec_snip.mdr &>/dev/null
+#  prlimit -n4 ./mdr tests/exec_exec.mdr &>/dev/null
+#  prlimit -n4 ./mdr tests/exec_view.mdr &>/dev/null
+#}
 
-[ $(uname) = "Linux" ] && limit_test || true
+#[ $(uname) = "Linux" ] && limit_test || true

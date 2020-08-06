@@ -10,11 +10,17 @@
 #include "mdr.h"
 #include "lexer.h"
 
+static inline void lex_nl(struct Lexer *lex) {
+  if(*lex->str == '\n')
+    ++lex->line;
+}
+
 static inline unsigned int lex_end(struct Lexer *lex) {
   return *lex->str == '\0';
 }
 
 static void lex_adv(struct Lexer *lex) {
+  lex_nl(lex);
   ++lex->str;
   ++lex->idx;
 }
@@ -115,8 +121,10 @@ static void lex_range(struct Lexer *lex) {
 
 static enum mdr_status _inc(struct Lexer *lex) {
   lex->str += 3;
-  if(!(lex->info.str = snippet_name(lex)))
-    return mdr_fail("missing include name\n");
+  if(!(lex->info.str = snippet_name(lex))) {
+    struct Loc loc = { .start=lex->line, .end=lex->line, .filename=lex->filename };
+    return mdr_fail(&loc, "missing include name\n");
+  }
   eat_space(lex);
   lex_range(lex);
   eat_space(lex);
@@ -124,7 +132,8 @@ static enum mdr_status _inc(struct Lexer *lex) {
     free_string(lex->info.str);
     return mdr_err;
   }
-  lex->str += 2;
+  lex_adv(lex);
+  lex_adv(lex);
   return mdr_inc;
 }
 
@@ -132,8 +141,10 @@ static enum mdr_status _blk(struct Lexer *lex) {
   lex->alt = !lex->alt;
   lex->str += 4;
   if(lex->alt) {
-    if(!(lex->info.str = snippet_name(lex)))
-      return mdr_fail("unstarted block\n");
+    if(!(lex->info.str = snippet_name(lex))) {
+      struct Loc loc = { .start=lex->line, .end = lex->line, .filename=lex->filename };
+      return mdr_fail(&loc, "unstarted block\n");
+    }
     eat_space(lex);
     lex_range(lex);
     lex_eol(lex);
@@ -146,8 +157,10 @@ static enum mdr_status _cmd(struct Lexer *lex) {
   eat_space(lex);
   char *const buf = lex->str;
   lex_eol(lex);
-  if(lex->idx == 1)
-    return mdr_fail("missing exec command\n");
+  if(lex->idx == 1) {
+    struct Loc loc = { .start=lex->line, .end = lex->line, .filename=lex->filename };
+    return mdr_fail(&loc, "missing exec command\n");
+  }
   lex->info.str = new_string(buf, lex->idx - 1);
   return mdr_cmd;
 }

@@ -14,7 +14,6 @@
 static struct MdrString* file2str(FILE *f) {
   char line[128];
   struct MdrString *buf = new_string("", 0);
-  buf->sz = 0;
   while(fgets(line, sizeof(line), f)) {
     buf->sz += strlen(line);
     strcat(buf->str = realloc(buf->str, buf->sz + 1), line);
@@ -22,8 +21,8 @@ static struct MdrString* file2str(FILE *f) {
   return buf;
 }
 
-struct MdrString* filename2str(const char* name) {
-  FILE * f = mdr_open_read(name);
+struct MdrString* filename2str(const char *filename, const struct Loc *loc) {
+  FILE * f = mdr_open_read(filename, loc);
   if(!f)
     return NULL;
   struct MdrString *str = file2str(f);
@@ -31,13 +30,14 @@ struct MdrString* filename2str(const char* name) {
   return str;
 }
 
-struct MdrString* cmd(const char *str) {
+struct MdrString* cmd(const struct Ast *ast) {
 #ifdef __AFL_COMPILER
   return new_string("", 0);
 #endif
+  const char *str = ast->info.str->str;
   FILE *f = popen(str, "r");
   if(!f) {
-    mdr_fail("can't exec '%s'\n", str);
+    mdr_fail(&ast->loc, "can't exec '%s'\n", str);
     return NULL;
   }
   struct MdrString *ret = file2str(f);
@@ -45,18 +45,18 @@ struct MdrString* cmd(const char *str) {
   return ret;
 }
 
-FILE* mdr_open_read(const char *str) {
+FILE* mdr_open_read(const char *str, const struct Loc *loc) {
   FILE *const file = fopen(str, "rb");
   if(file)
     return file;
-  mdr_fail("can't open '%s' for reading\n", str);
+  mdr_fail(loc, "can't open '%s' for reading\n", str);
   return NULL;
 }
 
-FILE* mdr_open_write(const char *str) {
+FILE* mdr_open_write(const char *str, const struct Loc *loc) {
   FILE *const file = fopen(str, "w");
   if(file)
     return file;
-  mdr_fail("can't open '%s' for writing\n", str);
+  mdr_fail(loc, "can't open '%s' for writing\n", str);
   return NULL;
 }

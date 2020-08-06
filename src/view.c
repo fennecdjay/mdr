@@ -94,7 +94,7 @@ static enum mdr_status view_inc(struct View *view, struct Ast *ast) {
 }
 
 static enum mdr_status view_cmd(struct View *view, struct Ast *ast) {
-  struct MdrString *str = cmd(ast->info.str->str);
+  struct MdrString *str = cmd(ast);
   if(!str)
     return mdr_err;
   if(!ast->info.dot) {
@@ -126,14 +126,14 @@ static enum mdr_status actual_view_ast(struct View *view, struct Ast *ast) {
 
 enum mdr_status view_ast(struct Mdr *mdr, struct Ast *ast) {
   struct View view = { .know=&mdr->know, .curr=new_string("", 0), .vopt=mdr->vopt };
-  if(actual_view_ast(&view, ast) == mdr_err) {
-    free_string(view.curr);
-    return mdr_err;
+  const enum mdr_status ret = actual_view_ast(&view, ast);
+  if(ret == mdr_ok) {
+    const size_t sz = strlen(mdr->name);
+    char c[sz];
+    memcpy(c, mdr->name, sz - 1);
+    c[sz - 1] = '\0';
+    write_file(c, &ast->loc, view.curr);
   }
-  const size_t sz = strlen(mdr->name);
-  char c[sz];
-  memcpy(c, mdr->name, sz - 1);
-  c[sz - 1] = '\0';
-  write_file(c, view.curr);
-  return mdr_ok;
+  free_string(view.curr);
+  return ret;
 }
