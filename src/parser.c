@@ -17,7 +17,7 @@ struct Parser {
   struct Ast *ast;
   char *filename;
   int blk;
-  uint start;
+  short unsigned int start;
 };
 
 static inline void set_loc(struct Ast *ast, struct Parser *parser) {
