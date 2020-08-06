@@ -24,13 +24,13 @@ let's write our first litterate progam.
 ### Define program structure
 
   > hello_world.c
-``` hello_world.c
+``` hello_world.c  
 @[[ Includes ]]
 
 int main(int argc, char** argv) {
   @[[ Print ]]
 }
-```
+```  
 
 
 ### Add Headers
@@ -38,17 +38,17 @@ As we need the *puts* function, we need **stdio** headers.
 
 
   > Includes
-``` Includes
+``` Includes  
 #include <stdio.h>
-```
+```  
 
 
 ### Print function
 
   > Print
-``` Print
+``` Print  
 puts("Hello, World!");
-```
+```  
 
 
 
@@ -56,7 +56,7 @@ puts("Hello, World!");
 let's compile *hello_world.c*.
 
   > cc hello_world.c -o hello_world
-
+  
 
 
 Yes, there should be no output, and that good news.
@@ -72,7 +72,7 @@ Let's look at hello_world.c
 int main(int argc, char** argv) {
   puts("Hello, World!");
 }
-
+  
 
 That's the content of the source file we generated (and compiled).
 
@@ -84,7 +84,7 @@ Then we run it
 
   > ./hello_world
 Hello, World!
-
+  
 
 
 Do we read *Hello World!* ?
@@ -94,7 +94,7 @@ Assuming yes, let's continue.
 
   > [ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"
 OK
-
+  
 
 
 ## Building

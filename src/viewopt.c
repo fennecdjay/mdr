@@ -6,11 +6,11 @@
 static const char* view_opt[][2] = {
   { "MDR_BLK_PRE", "  > " },
   { "MDR_BLK_INI", "\n``` " },
-  { "MDR_BLK_MID", "\n" },
-  { "MDR_BLK_END", "```" },
+  { "MDR_BLK_MID", "  \n" },
+  { "MDR_BLK_END", "```  " },
   { "MDR_CMD_INI", "  > " },
   { "MDR_CMD_MID", "\n" },
-  { "MDR_CMD_INI", "\n" },
+  { "MDR_CMD_INI", "  \n" },
 };
 
 static inline struct MdrString* viewopt_get(const size_t idx) {
