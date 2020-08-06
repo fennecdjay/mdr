@@ -8,7 +8,7 @@ static const char* view_opt[][2] = {
   { "MDR_BLK_INI", "\n``` " },
   { "MDR_BLK_MID", "  \n" },
   { "MDR_BLK_END", "```  " },
-  { "MDR_CMD_INI", "  > " },
+  { "MDR_CMD_INI", "  > exec: " },
   { "MDR_CMD_MID", "  \n```\n" },
   { "MDR_CMD_END", "```  \n" },
 };

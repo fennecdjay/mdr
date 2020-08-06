@@ -55,7 +55,7 @@ puts("Hello, World!");
 ### Compile
 let's compile *hello_world.c*.
 
-  > cc hello_world.c -o hello_world  
+  > exec: cc hello_world.c -o hello_world  
 ```
 ```  
 
@@ -67,7 +67,7 @@ Yes, there should be no output, and that good news.
 ### Check
 Let's look at hello_world.c
 
-  > cat hello_world.c  
+  > exec: cat hello_world.c  
 ```
 #include <stdio.h>
 
@@ -84,7 +84,7 @@ That's the content of the source file we generated (and compiled).
 
 Then we run it
 
-  > ./hello_world  
+  > exec: ./hello_world  
 ```
 Hello, World!
 ```  
@@ -95,7 +95,7 @@ Assuming yes, let's continue.
 
 ### More test
 
-  > [ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"  
+  > exec: [ "$(./hello_world)" = "Hello, World!" ] && echo "OK" || echo "NOT_OK"  
 ```
 OK
 ```  
