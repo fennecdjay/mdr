@@ -69,7 +69,7 @@ enum mdr_status file(struct Mdr *mdr) {
       ret = actual_file_ast(&file, ast);
     }
     if(ret == mdr_ok)
-      file_set(&mdr->know, (struct Ast*)vector_at((Vector)VVAL(&mdr->file, 0),0) , file.curr);
+      file_set(&mdr->know, (struct Ast*)vector_at((Vector)VVAL(&mdr->file, i), 0) , file.curr);
     else
       free_string(file.curr);
   }
