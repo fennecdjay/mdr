@@ -42,7 +42,8 @@ static unsigned int lex_is_path(struct Lexer *lex) {
 }
 
 static unsigned int path(struct Lexer *lex) {
-  while(!lex_end(lex) && (isalnum(*lex->str) || *lex->str == '_' || lex_is_path(lex)))
+  while(!lex_end(lex) && (isalnum(*lex->str) ||
+      *lex->str == '_' || *lex->str == '-' || lex_is_path(lex)))
     lex_adv(lex);
   return 1;
 }
