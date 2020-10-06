@@ -25,10 +25,14 @@ static void lex_adv(struct Lexer *lex) {
   ++lex->idx;
 }
 
-static void lex_eol(struct Lexer *lex) {
-  while(!lex_end(lex) && *lex->str != '\n')
+static int lex_eol(struct Lexer *lex) {
+  int escape = 0;
+  while(!lex_end(lex) && *lex->str != '\n') {
+    escape = (*lex->str == '\\');
     lex_adv(lex);
+  }
   lex_adv(lex);
+  return escape;
 }
 
 static inline unsigned int is_path(const char c) {
@@ -153,16 +157,29 @@ static enum mdr_status _blk(struct Lexer *lex) {
   return mdr_blk;
 }
 
+static void escape_nl(struct Lexer *lex, char * buf) {
+  int escape = 1;
+  do {
+    const int base = lex->idx;
+    escape = lex_eol(lex);
+    struct MdrString str = { buf + base, lex->idx - base - escape};
+    string_append(lex->info.str, &str);
+  }
+  while(escape);
+}
+
 static enum mdr_status _cmd(struct Lexer *lex) {
   lex->str += 5;
   eat_space(lex);
   char *const buf = lex->str;
-  lex_eol(lex);
+  int escape = lex_eol(lex);
   if(lex->idx == 1) {
     struct Loc loc = { .start=lex->line, .end = lex->line, .filename=lex->filename };
     return mdr_fail(&loc, "missing exec command\n");
   }
-  lex->info.str = new_string(buf, lex->idx - 1);
+  lex->info.str = new_string(buf, lex->idx - 1 - escape);
+  if(escape)
+    escape_nl(lex, buf);
   return mdr_cmd;
 }
 
