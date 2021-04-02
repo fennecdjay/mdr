@@ -26,8 +26,8 @@ jobs:
 
     - name: Build asset
       run: |
-        strip mdr
-        7z a mdr-nightly.zip mdr
+        strip mdr*
+        7z a mdr-nightly.zip mdr*
 
     - name: Set tag
       if: ${{ matrix.os == 'ubuntu-latest' }}
