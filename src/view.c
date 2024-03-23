@@ -44,7 +44,7 @@ static size_t format_long(char c[64], long n) {
 
 
 static void string_append_long(struct MdrString *str, const char prefix, long n) {
-  char c[64];
+  char c[128];
   memset(c, 0, 64);
   c[0] = prefix;
   size_t sz = format_long(c + 1, n);
